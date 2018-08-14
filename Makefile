@@ -6,13 +6,13 @@ run: all
 	cd build/js13kserver; npm run start
 
 build/public/server.js: src/server.js | build/public
-	closure-compiler $^ --js_output_file $@
+	google-closure-compiler $^ --js_output_file $@
 
 build/public/client.js: src/client.js | build/public
-	closure-compiler $^ --js_output_file $@
+	google-closure-compiler $^ --js_output_file $@
 
 build/public/shared.js: src/shared.js | build/public
-	closure-compiler $^ --js_output_file $@
+	google-closure-compiler $^ --js_output_file $@
 
 build/public/index.html: src/index.html | build/public
 	cp $< $@
@@ -35,3 +35,6 @@ build:
 
 clean:
 	rm -r build
+
+fix:
+	eslint --fix src/**/*.js
