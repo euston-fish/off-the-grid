@@ -1,18 +1,18 @@
-.PHONY: all run clean
+GCC=google-closure-compiler
+GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
 
-all: build/public/server.js build/public/client.js build/public/shared.js build/public/index.html build/js13kserver
+.PHONY: all run clean squeaky fix
+
+all: build/public/server.js build/public/shared.js build/public/index.html build/js13kserver
 	
 run: all
 	cd build/js13kserver; npm run start
 
-build/public/server.js: src/server.js | build/public
-	google-closure-compiler $^ --js_output_file $@
+build/public/shared.js: src/shared.js src/server.js src/client.js src/index.js | build/public
+	$(GCC) $(GCCFLAGS) $^ --js_output_file $@
 
-build/public/client.js: src/client.js | build/public
-	google-closure-compiler $^ --js_output_file $@
-
-build/public/shared.js: src/shared.js | build/public
-	google-closure-compiler $^ --js_output_file $@
+build/public/server.js: | build/public
+	touch $@
 
 build/public/index.html: src/index.html | build/public
 	cp $< $@
@@ -34,6 +34,9 @@ build:
 	mkdir build
 
 clean:
+	rm -r build/public
+
+squeaky: clean
 	rm -r build
 
 fix:

@@ -1,4 +1,4 @@
-'use strict';
+import { GUESS_NO, GUESS_ROCK, GUESS_PAPER, GUESS_SCISSORS } from './shared.js'
 
 /**
  * User sessions
@@ -90,10 +90,7 @@ class Game {
  */
 class User {
 
-  /**
-	 * @param {Socket} socket
-	 */
-  constructor(socket) {
+ constructor(socket) {
     this.socket = socket;
     this.game = null;
     this.opponent = null;
@@ -161,13 +158,12 @@ class User {
 
 }
 
-/**
- * Socket.IO on connect event
- * @param {Socket} socket
- */
-module.exports = {
+export default {
 
-  io: (socket) => {
+  /**
+   * Socket.IO on connect event
+   */
+   'io': (socket) => {
     const user = new User(socket);
     users.push(user);
     findOpponent(user);
@@ -195,10 +191,11 @@ module.exports = {
     console.log('Connected: ' + socket.id);
   },
 
-  stat: (req, res) => {
+  'stat': (req, res) => {
     storage.get('games', 0).then(games => {
       res.send(`<h1>Games played: ${games}</h1>`);
     });
   }
 
 };
+
