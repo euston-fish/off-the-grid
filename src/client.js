@@ -4,6 +4,9 @@
 window.addEventListener('load', () => {
   const SIZE = 1024,
     W = 20;
+  let add = ([x, y], [z, w]) => [x+z, y+w],
+      inv = ([x, y]) => [-x, -y],
+      sub = (a, b) => add(a, inv(b));
   let socket;
   let to_index = (a) => Math.floor(a / W);
 
@@ -47,16 +50,30 @@ window.addEventListener('load', () => {
   let resize = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-      
   };
   window.addEventListener('resize', resize);
   resize();
 
   let viewport_offset = [0, 0];
+  let prev_mouse_location = null;
+
+  canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
+  canvas.addEventListener('mouseup', (event) => prev_mouse_location = null);
+  canvas.addEventListener('mousemove', (event) => {
+    if (prev_mouse_location) {
+      let new_offset = [event.x, event.y];
+      let offset = sub(new_offset, prev_mouse_location);
+      viewport_offset = add(viewport_offset, offset);
+      prev_mouse_location = new_offset;
+      console.log(viewport_offset)
+    }
+  });
   let draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
       [canvas.width, canvas.height]);
-
+    ye++;
+    xe++
     for (let x = xs; x < xe; x++) {
       for (let y = ys; y < ye; y++) {
         let height = get_at(elevation, [x, y]);
