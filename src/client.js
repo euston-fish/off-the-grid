@@ -3,10 +3,12 @@
 
 window.addEventListener('load', () => {
   const SIZE = 1024,
-    W = 20;
+    W = 34;
   let add = ([x, y], [z, w]) => [x+z, y+w],
       inv = ([x, y]) => [-x, -y],
-      sub = (a, b) => add(a, inv(b));
+      sub = (a, b) => add(a, inv(b)),
+      normal = (uniform_1, uniform_2) => Math.sqrt(-2 * Math.log(uniform_1)) * Math.cos(2 * Math.PI * uniform_2);
+
   let socket;
   let to_index = (a) => Math.floor(a / W);
 
@@ -16,7 +18,7 @@ window.addEventListener('load', () => {
   let generate_map = () => {
     let array = new Uint8Array(SIZE * SIZE);
     array.forEach((_, idx) => {
-      array[idx] = Math.floor(Math.random() * 255);
+      array[idx] = Math.floor(normal(Math.random(), Math.random()) * 128);
     });
     return array;
   };
@@ -65,23 +67,28 @@ window.addEventListener('load', () => {
       let offset = sub(new_offset, prev_mouse_location);
       viewport_offset = sub(viewport_offset, offset);
       prev_mouse_location = new_offset;
-      console.log(viewport_offset)
+      window.requestAnimationFrame(draw);
     }
   });
   let draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
       [canvas.width, canvas.height]);
+    let [ox, oy] = [viewport_offset[0] % W, viewport_offset[1] % W];
     ye++;
     xe++
     for (let x = xs; x < xe; x++) {
       for (let y = ys; y < ye; y++) {
         let height = get_at(elevation, [x, y]);
         ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
-        ctx.fillRect(W * (x - xs), W * (y - ys), W * (x - xs + 1), W * (y - ys + 1));
+        ctx.fillRect(
+          W * (x - xs) - ox,
+          W * (y - ys) - oy,
+          W * (x - xs + 1) - ox,
+          W * (y - ys + 1) - oy
+        );
       }
     }
-    window.requestAnimationFrame(draw);
   };
 
   bind();
