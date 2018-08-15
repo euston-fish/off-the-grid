@@ -63,7 +63,7 @@ window.addEventListener('load', () => {
     if (prev_mouse_location) {
       let new_offset = [event.x, event.y];
       let offset = sub(new_offset, prev_mouse_location);
-      viewport_offset = add(viewport_offset, offset);
+      viewport_offset = sub(viewport_offset, offset);
       prev_mouse_location = new_offset;
       console.log(viewport_offset)
     }
@@ -78,7 +78,7 @@ window.addEventListener('load', () => {
       for (let y = ys; y < ye; y++) {
         let height = get_at(elevation, [x, y]);
         ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
-        ctx.fillRect(W * x, W * y, W * (x + 1), W * (y + 1));
+        ctx.fillRect(W * (x - xs), W * (y - ys), W * (x - xs + 1), W * (y - ys + 1));
       }
     }
     window.requestAnimationFrame(draw);
