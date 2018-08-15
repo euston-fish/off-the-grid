@@ -2,10 +2,26 @@
 /*global io*/
 
 window.addEventListener('load', () => {
+  const SIZE = 1024,
+    W = 20;
   let socket;
+  let to_index = (a) => Math.floor(a / W);
+
+  let get_view_range = ([x, y], [w, h]) => [
+    [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
+
+  let generate_map = () => {
+    let array = new Uint8Array(SIZE * SIZE);
+    array.forEach((_, idx) => {
+      array[idx] = Math.floor(Math.random() * 255);
+    });
+    return array;
+  };
+  let elevation = generate_map();
+
+  let get_at = (array, [x, y]) => array[(y * SIZE) + x];
 
   let bind = () => {
-
     socket.on('start', () => {
       console.log('Started');
     });
@@ -36,9 +52,18 @@ window.addEventListener('load', () => {
   window.addEventListener('resize', resize);
   resize();
 
+  let viewport_offset = [0, 0];
   let draw = () => {
-    ctx.fillStyle = '#FF0000';
-    ctx.fillRect(0,0,150,75);
+    let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
+      [canvas.width, canvas.height]);
+
+    for (let x = xs; x < xe; x++) {
+      for (let y = ys; y < ye; y++) {
+        let height = get_at(elevation, [x, y]);
+        ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
+        ctx.fillRect(W * x, W * y, W * (x + 1), W * (y + 1));
+      }
+    }
     window.requestAnimationFrame(draw);
   };
 
