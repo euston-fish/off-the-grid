@@ -18,9 +18,14 @@ Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.
 
 ## Develop
 
-Edit files under `src`.
+* Edit files under `src`
+* To lint the project, `make lint`
+* To fix correctable errors, `make fix`
 
 ## Todo
 
+- Load terrain in chunks
+- Implement other layers
+- Do some actual simulation
 - Make build tools for compressing and measuring
 - Maybe use less `make`
