@@ -99,8 +99,8 @@ export default (function () {
           base_ctx.fillRect(
             x - xs,
             y - ys,
-            x - xs + 1,
-            y - ys + 1,
+            1,
+            1,
           );
         }
       }
@@ -110,8 +110,8 @@ export default (function () {
         detail_ctx.fillRect(
           W * (x - xs),
           W * (y - ys),
-          W * (x - xs + 1),
-          W * (y - ys + 1)
+          W,
+          W,
         );
       })
       detail_ctx.fillText([xs, ys].toString(), 5, 15);
