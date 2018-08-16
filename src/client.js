@@ -114,6 +114,7 @@ export default (function () {
           W * (y - ys + 1)
         );
       })
+      detail_ctx.fillText([xs, ys].toString(), 5, 15);
     };
 
     bind();
