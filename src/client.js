@@ -50,8 +50,12 @@ window.addEventListener('load', () => {
   let canvas = document.getElementById('c');
   let ctx = canvas.getContext('2d');
   let resize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    let grid_width = Math.ceil(window.innerWidth / W) + 1;
+    let grid_height = Math.ceil(window.innerHeight / W) + 1;
+    canvas.width = grid_width;
+    canvas.height = grid_height;
+    canvas.style.width = grid_width * W + 'px';
+    canvas.style.height = grid_height * W + 'px';
   };
   window.addEventListener('resize', resize);
   resize();
@@ -73,19 +77,21 @@ window.addEventListener('load', () => {
   let draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
-      [canvas.width, canvas.height]);
+      [canvas.width * W, canvas.height * W]);
     let [ox, oy] = [viewport_offset[0] % W, viewport_offset[1] % W];
+    canvas.style.left = -ox + 'px';
+    canvas.style.top = -oy + 'px';
     ye++;
-    xe++
+    xe++;
     for (let x = xs; x < xe; x++) {
       for (let y = ys; y < ye; y++) {
         let height = get_at(elevation, [x, y]);
         ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
         ctx.fillRect(
-          W * (x - xs) - ox,
-          W * (y - ys) - oy,
-          W * (x - xs + 1) - ox,
-          W * (y - ys + 1) - oy
+          x - xs,
+          y - ys,
+          x - xs + 1,
+          y - ys + 1,
         );
       }
     }
