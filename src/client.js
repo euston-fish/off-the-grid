@@ -1,12 +1,10 @@
+import { sub } from './shared.js';
+
 export default (function () {
   /*global io*/
   window.addEventListener('load', () => {
-    const SIZE = 1024,
+    const SIZE = 256,
       W = 34;
-    let add = ([x, y], [z, w]) => [x+z, y+w],
-      inv = ([x, y]) => [-x, -y],
-      sub = (a, b) => add(a, inv(b)),
-      normal = (uniform_1, uniform_2) => Math.sqrt(-2 * Math.log(uniform_1)) * Math.cos(2 * Math.PI * uniform_2);
 
     let socket;
     let to_index = (a) => Math.floor(a / W);
@@ -14,14 +12,11 @@ export default (function () {
     let get_view_range = ([x, y], [w, h]) => [
       [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
 
-    let generate_map = () => {
-      let array = new Uint8Array(SIZE * SIZE);
-      array.forEach((_, idx) => {
-        array[idx] = Math.floor(normal(Math.random(), Math.random()) * 128);
-      });
-      return array;
-    };
-    let elevation = generate_map();
+    let elevation = [];
+    fetch('terrain/')
+      .then(x => x.json())
+      .then(x => elevation = x)
+      .then(() => window.requestAnimationFrame(draw));
 
     let objects = [
       [12, 23, '#ff0000'],

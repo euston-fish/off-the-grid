@@ -24,4 +24,3 @@ Edit files under `src`.
 
 - Make build tools for compressing and measuring
 - Maybe use less `make`
-- Do actual work
