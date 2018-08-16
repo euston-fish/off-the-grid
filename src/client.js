@@ -15,6 +15,10 @@ window.addEventListener('load', () => {
   let get_view_range = ([x, y], [w, h]) => [
     [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
 
+  let objects = [
+    [12, 23, '#ff0000'],
+  ]
+
   let generate_map = () => {
     let array = new Uint8Array(SIZE * SIZE);
     array.forEach((_, idx) => {
@@ -47,15 +51,19 @@ window.addEventListener('load', () => {
   };
 
   socket = io({ upgrade: false, transports: ['websocket'] });
-  let canvas = document.getElementById('c');
-  let ctx = canvas.getContext('2d');
+  let base_canvas = document.getElementById('c');
+  let base_ctx = base_canvas.getContext('2d');
+  let detail_canvas = document.getElementById('a');
+  let detail_ctx = detail_canvas.getContext('2d');
   let resize = () => {
     let grid_width = Math.ceil(window.innerWidth / W) + 1;
     let grid_height = Math.ceil(window.innerHeight / W) + 1;
-    canvas.width = grid_width;
-    canvas.height = grid_height;
-    canvas.style.width = grid_width * W + 'px';
-    canvas.style.height = grid_height * W + 'px';
+    base_canvas.width = grid_width;
+    base_canvas.height = grid_height;
+    base_canvas.style.width = grid_width * W + 'px';
+    base_canvas.style.height = grid_height * W + 'px';
+    detail_canvas.width = window.innerWidth;
+    detail_canvas.height = window.innerHeight;
   };
   window.addEventListener('resize', resize);
   resize();
@@ -63,9 +71,9 @@ window.addEventListener('load', () => {
   let viewport_offset = [0, 0];
   let prev_mouse_location = null;
 
-  canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
-  canvas.addEventListener('mouseup', (event) => prev_mouse_location = null);
-  canvas.addEventListener('mousemove', (event) => {
+  detail_canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
+  detail_canvas.addEventListener('mouseup', (event) => prev_mouse_location = null);
+  detail_canvas.addEventListener('mousemove', (event) => {
     if (prev_mouse_location) {
       let new_offset = [event.x, event.y];
       let offset = sub(new_offset, prev_mouse_location);
@@ -75,19 +83,20 @@ window.addEventListener('load', () => {
     }
   });
   let draw = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    base_ctx.clearRect(0, 0, base_canvas.width, base_canvas.height);
+    detail_ctx.clearRect(0, 0, detail_canvas.width, detail_canvas.height);
     let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
-      [canvas.width * W, canvas.height * W]);
+      [base_canvas.width * W, base_canvas.height * W]);
     let [ox, oy] = [viewport_offset[0] % W, viewport_offset[1] % W];
-    canvas.style.left = -ox + 'px';
-    canvas.style.top = -oy + 'px';
+    base_canvas.style.left = -ox + 'px';
+    base_canvas.style.top = -oy + 'px';
     ye++;
     xe++;
     for (let x = xs; x < xe; x++) {
       for (let y = ys; y < ye; y++) {
         let height = get_at(elevation, [x, y]);
-        ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
-        ctx.fillRect(
+        base_ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
+        base_ctx.fillRect(
           x - xs,
           y - ys,
           x - xs + 1,
@@ -95,6 +104,17 @@ window.addEventListener('load', () => {
         );
       }
     }
+    objects.forEach(([x, y, color]) => {
+      detail_ctx.fillStyle = color;
+      console.log(x, y, color)
+      detail_ctx.fillRect(
+        W * (x - xs),
+        W * (y - ys),
+        W * (x - xs + 1),
+        W * (y - ys + 1)
+      );
+    })
+
   };
 
   bind();
