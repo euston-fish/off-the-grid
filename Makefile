@@ -4,7 +4,7 @@ GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
 SOURCES=src/shared.js src/server.js src/client.js src/index.js
 OUTPUTS=shared.js server.js index.html
 
-.PHONY: debug_run release_run clean squeaky fix
+.PHONY: debug_run release_run clean squeaky lint fix
 	
 debug: $(addprefix debug/public/,$(OUTPUTS)) | debug/js13kserver
 
@@ -45,6 +45,9 @@ clean:
 
 squeaky: clean
 	rm -rf js13kserver.zip
+
+lint:
+	eslint src/**/*.js
 
 fix:
 	eslint --fix src/**/*.js

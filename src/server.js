@@ -1,4 +1,5 @@
-import { GUESS_NO, GUESS_ROCK, GUESS_PAPER, GUESS_SCISSORS } from './shared.js'
+/* global storage */
+import { GUESS_NO, GUESS_ROCK, GUESS_PAPER, GUESS_SCISSORS } from './shared.js';
 
 /**
  * User sessions
@@ -90,7 +91,7 @@ class Game {
  */
 class User {
 
- constructor(socket) {
+  constructor(socket) {
     this.socket = socket;
     this.game = null;
     this.opponent = null;
@@ -163,7 +164,7 @@ export default {
   /**
    * Socket.IO on connect event
    */
-   'io': (socket) => {
+  'io': (socket) => {
     const user = new User(socket);
     users.push(user);
     findOpponent(user);

@@ -4,9 +4,9 @@ export default (function () {
     const SIZE = 1024,
       W = 34;
     let add = ([x, y], [z, w]) => [x+z, y+w],
-        inv = ([x, y]) => [-x, -y],
-        sub = (a, b) => add(a, inv(b)),
-        normal = (uniform_1, uniform_2) => Math.sqrt(-2 * Math.log(uniform_1)) * Math.cos(2 * Math.PI * uniform_2);
+      inv = ([x, y]) => [-x, -y],
+      sub = (a, b) => add(a, inv(b)),
+      normal = (uniform_1, uniform_2) => Math.sqrt(-2 * Math.log(uniform_1)) * Math.cos(2 * Math.PI * uniform_2);
 
     let socket;
     let to_index = (a) => Math.floor(a / W);
@@ -25,7 +25,7 @@ export default (function () {
 
     let objects = [
       [12, 23, '#ff0000'],
-    ]
+    ];
 
 
     let get_at = (array, [x, y]) => array[(y * SIZE) + x];
@@ -72,7 +72,7 @@ export default (function () {
     let prev_mouse_location = null;
 
     detail_canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
-    detail_canvas.addEventListener('mouseup', (event) => prev_mouse_location = null);
+    detail_canvas.addEventListener('mouseup', () => prev_mouse_location = null);
     detail_canvas.addEventListener('mousemove', (event) => {
       if (prev_mouse_location) {
         let new_offset = [event.x, event.y];
@@ -100,24 +100,24 @@ export default (function () {
             x - xs,
             y - ys,
             1,
-            1,
+            1
           );
         }
       }
       objects.forEach(([x, y, color]) => {
         detail_ctx.fillStyle = color;
-        console.log(x, y, color)
+        console.log(x, y, color);
         detail_ctx.fillRect(
           W * (x - xs),
           W * (y - ys),
           W,
-          W,
+          W
         );
-      })
+      });
       detail_ctx.fillText([xs, ys].toString(), 5, 15);
     };
 
     bind();
     draw();
   }, false);
-})
+});
