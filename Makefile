@@ -1,40 +1,50 @@
-.PHONY: all run clean
+GCC=google-closure-compiler
+GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
+GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
+SOURCES=src/shared.js src/server.js src/client.js src/index.js
+OUTPUTS=shared.js server.js index.html
 
-all: build/public/server.js build/public/client.js build/public/shared.js build/public/index.html build/js13kserver
+.PHONY: debug_run release_run clean squeaky fix
 	
-run: all
-	cd build/js13kserver; npm run start
+debug: $(addprefix debug/public/,$(OUTPUTS)) | debug/js13kserver
 
-build/public/server.js: src/server.js | build/public
-	google-closure-compiler $^ --js_output_file $@
+debug_run: debug
+	cd debug; npm run start
 
-build/public/client.js: src/client.js | build/public
-	google-closure-compiler $^ --js_output_file $@
+debug/public/shared.js: $(SOURCES) externs.js
+	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) $(SOURCES) --js_output_file $@
+	echo "//# sourceMappingURL=shared.js.map" >> $@
 
-build/public/shared.js: src/shared.js | build/public
-	google-closure-compiler $^ --js_output_file $@
+%/public/server.js:
+	touch $@
 
-build/public/index.html: src/index.html | build/public
+%/public/index.html: src/index.html
 	cp $< $@
 
-build/js13kserver: build/js13kserver.zip | build/public
-	unzip $^
-	mv js13kserver-master build/js13kserver
-	rm -r build/js13kserver/public
-	ln -s ../public build/js13kserver/public
-	cd build/js13kserver; npm install
-	
-build/js13kserver.zip: | build
+release: $(addprefix release/public/,$(OUTPUTS)) release/js13kserver
+
+release_run: release
+	cd release; npm run start
+
+release/public/shared.js: $(SOURCES) externs.js
+	$(GCC) $(GCCFLAGS) $(SOURCES) --js_output_file $@
+
+%/js13kserver: js13kserver.zip
+	unzip $^ -x js13kserver-master/public/*
+	mv js13kserver-master/* $(dir $@)
+	rm -rf js13kserver-master
+	#rm -r $(dir $@)/public
+	cd $(dir $@); npm install
+	touch $@
+
+js13kserver.zip:
 	curl -L https://github.com/js13kgames/js13kserver/archive/master.zip -o $@
 
-build/public: | build
-	mkdir build/public
-
-build:
-	mkdir build
-
 clean:
-	rm -r build
+	rm -rf debug release
+
+squeaky: clean
+	rm -rf js13kserver.zip
 
 fix:
 	eslint --fix src/**/*.js

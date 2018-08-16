@@ -1,2 +1,4 @@
-/build
+debug/
+release/
+js13kserver.zip
 node_modules/*

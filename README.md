@@ -8,15 +8,13 @@ Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.
 
 ## Build
 
-```
-make
-```
+* To build the debug version with source maps, `make debug`
+* To build the release version, `make release`
 
 ## Run
 
-```
-make run
-```
+* To run the debug version with source maps, `make debug_run`
+* To run the release version, `make release_run`
 
 ## Develop
 
@@ -24,7 +22,6 @@ Edit files under `src`.
 
 ## Todo
 
-- Use fewer js files
 - Make build tools for compressing and measuring
 - Maybe use less `make`
 - Do actual work
