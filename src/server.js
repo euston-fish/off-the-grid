@@ -1,11 +1,17 @@
 import { normal } from './shared.js';
 import Texture from './Texture.js';
+import Block from './Block.js';
 
 let inspect = (x) => { console.log(x); return x; };
 
-const SIZE = 64;
+const SIZE = 1024;
 let terrain = new Texture([SIZE, SIZE]);
-terrain.lens.updateAll(() => inspect(Math.floor(normal(Math.random(), Math.random()) * 128)));
+terrain.lens.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+let blocks = Array(1024 / 16).fill().map(
+  (_, c) => Array(1024 / 16).fill().map(
+    (_, r) => new Block([c, r], terrain.lens.subLens([c * 16, r * 16], [16, 16]))
+  )
+)
 
 
 export default {
@@ -21,8 +27,8 @@ export default {
     res.json(Array.from(terrain.values));
   },
 
-  'terrain/:col/:row': (req, res) => {
-    res.json(terrain.lens.subLens([req['params']['col'], req['params']['row']], [16, 16]));
+  'block/:col/:row': (req, res) => {
+    res.json(blocks[req['params']['col']][req['params']['row']])
   }
 };
 
