@@ -16,7 +16,9 @@ export default (function () {
       [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
 
     let objects = [
-      [12, 23, '#ff0000'],
+      [[12, 23], '#ff0000'],
+      [[24, 36], '#0000ff'],
+      [[46, 3], '#00ff00'],
     ];
 
     let bind = () => {
@@ -69,6 +71,8 @@ export default (function () {
         viewport_offset = sub(viewport_offset, offset);
         prev_mouse_location = new_offset;
         window.requestAnimationFrame(draw);
+        viewport_offset[0] = Math.max(viewport_offset[0], 0);
+        viewport_offset[1] = Math.max(viewport_offset[1], 0);
       }
     });
     let draw = () => {
@@ -97,12 +101,11 @@ export default (function () {
           );
         }
       }
-      objects.forEach(([x, y, color]) => {
+      objects.forEach(([[x, y], color]) => {
         detail_ctx.fillStyle = color;
-        console.log(x, y, color);
         detail_ctx.fillRect(
-          W * (x - xs),
-          W * (y - ys),
+          W * (x - xs) - ox,
+          W * (y - ys) - oy,
           W,
           W
         );
