@@ -1,4 +1,4 @@
-import { sub } from './shared.js';
+import { add } from './shared.js';
 
 /**
  * @constructor
@@ -27,8 +27,8 @@ Lens.prototype.updateAll = function(callback) {
 
 Lens.prototype.subLens = function(origin, size) {
   return new Lens(
-    (coords) => this.get(sub(coords, origin)),
-    (coords, val) => this.set(sub(coords, origin), val),
+    (coords) => this.get(add(coords, origin)),
+    (coords, val) => this.set(add(coords, origin), val),
     size
   );
 };

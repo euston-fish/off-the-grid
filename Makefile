@@ -1,7 +1,14 @@
 GCC=google-closure-compiler
 GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
-SOURCES=src/Lens.js src/Texture.js src/Block.js src/shared.js src/server.js src/client.js src/index.js
+SOURCES=src/Lens.js \
+        src/Texture.js \
+        src/Block.js \
+        src/BlockManager.js \
+        src/shared.js \
+        src/server.js \
+        src/client.js \
+        src/index.js
 OUTPUTS=shared.js server.js index.html
 
 .PHONY: debug_run release_run clean squeaky lint fix

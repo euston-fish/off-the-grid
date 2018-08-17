@@ -1,29 +1,23 @@
 import { sub } from './shared.js';
+import BlockManager from './BlockManager.js';
+import Block from './Block.js';
 
 export default (function () {
-  /*global io*/
+  /* global io */
   window.addEventListener('load', () => {
-    const SIZE = 256,
-      W = 34;
+    const W = 34;
 
     let socket;
     let to_index = (a) => Math.floor(a / W);
 
+    let blockManager = new BlockManager();
+
     let get_view_range = ([x, y], [w, h]) => [
       [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
-
-    let elevation = [];
-    fetch('terrain/')
-      .then(x => x.json())
-      .then(x => elevation = x)
-      .then(() => window.requestAnimationFrame(draw));
 
     let objects = [
       [12, 23, '#ff0000'],
     ];
-
-
-    let get_at = (array, [x, y]) => array[(y * SIZE) + x];
 
     let bind = () => {
       socket.on('start', () => {
@@ -63,7 +57,7 @@ export default (function () {
     window.addEventListener('resize', resize);
     resize();
 
-    let viewport_offset = [0, 0];
+    let viewport_offset = [1000, 1000];
     let prev_mouse_location = null;
 
     detail_canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
@@ -78,6 +72,7 @@ export default (function () {
       }
     });
     let draw = () => {
+      console.log(blockManager.blocks);
       base_ctx.clearRect(0, 0, base_canvas.width, base_canvas.height);
       detail_ctx.clearRect(0, 0, detail_canvas.width, detail_canvas.height);
       let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,
@@ -89,7 +84,10 @@ export default (function () {
       xe++;
       for (let x = xs; x < xe; x++) {
         for (let y = ys; y < ye; y++) {
-          let height = get_at(elevation, [x, y]);
+          let blockCoord = Block.worldToBlock([x, y]);
+          let block = blockManager.get(blockCoord);
+          let internalCoord = block.coordFromWorld([x, y]);
+          let height = block.terrain.get(internalCoord);
           base_ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
           base_ctx.fillRect(
             x - xs,
@@ -114,5 +112,6 @@ export default (function () {
 
     bind();
     draw();
+    setTimeout(draw, 5000);
   }, false);
 });
