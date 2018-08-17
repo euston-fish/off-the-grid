@@ -1,8 +1,12 @@
 import { normal } from './shared.js';
+import Texture from './Texture.js';
 
-const SIZE = 256;
-let terrain = new Uint8Array(SIZE * SIZE);
-terrain.forEach((_, i) => terrain[i] = Math.floor(normal(Math.random(), Math.random()) * 128));
+let inspect = (x) => { console.log(x); return x; };
+
+const SIZE = 64;
+let terrain = new Texture([SIZE, SIZE]);
+terrain.lens.updateAll(() => inspect(Math.floor(normal(Math.random(), Math.random()) * 128)));
+
 
 export default {
   'io': (socket) => {
@@ -14,7 +18,11 @@ export default {
   },
 
   'terrain': (req, res) => {
-    res.json(Array.from(terrain));
+    res.json(Array.from(terrain.values));
+  },
+
+  'terrain/:col/:row': (req, res) => {
+    res.json(terrain.lens.subLens([req['params']['col'], req['params']['row']], [16, 16]));
   }
 };
 
