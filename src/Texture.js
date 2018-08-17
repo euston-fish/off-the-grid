@@ -22,4 +22,8 @@ Texture.prototype.indexToCoords = function(index) {
   return [index % this.size[1], Math.floor(index / this.size[1])];
 };
 
+Texture.prototype.get = function(coords) {
+  return this.values[this.coordsToIndex(coords)];
+}
+
 export default Texture;
