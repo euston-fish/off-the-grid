@@ -8,6 +8,11 @@ export const scale_over_range = (portion, lower, upper) =>
   lower + (upper - lower) * portion;
 export const rand_range = (lower, upper) =>
   lower + Math.random() * (upper - lower);
+export const move_towards = (from, to, max_amount) =>
+  from < to ? Math.min(from + max_amount, to) : Math.max(from - max_amount, to);
+export const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+export const min = (arr) => arr.reduce((a, b) => a < b ? a : b);
+export const max = (arr) => arr.reduce((a, b) => a > b ? a : b);
 
 /*
 let isIterable = (x) => x != null && typeof x[Symbol.iterator] === 'function';

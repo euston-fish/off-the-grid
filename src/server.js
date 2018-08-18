@@ -1,4 +1,4 @@
-import { normal } from './shared.js';
+import { normal, min, max, sum, move_towards } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 
@@ -7,8 +7,35 @@ export default function() {
   console.log('creating terrain');
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   terrain.updateAll(() => {
-    return Math.floor(normal(Math.random(), Math.random()) * 128);
+    return Math.floor(Math.random() * 255);
   });
+  let mean = 0;
+  let get_around = ([x, y]) => [
+    terrain.get([x, y - 1]) || 128,
+    terrain.get([x + 1, y - 1]) || 128,
+    terrain.get([x + 1, y]) || 128,
+    terrain.get([x + 1, y + 1]) || 128,
+    terrain.get([x, y + 1]) || 128,
+    terrain.get([x - 1, y + 1]) || 128,
+    terrain.get([x - 1, y]) || 128,
+    terrain.get([x - 1, y - 1]) || 128,
+  ];
+  terrain.updateAll((value, [x, y]) => {
+    let around = get_around([x, y]);
+    let choice = Math.random();
+    if (choice < 0.3) {
+      let lowest = min(around);
+      value = (value + lowest) / 2;
+    } if (choice < 0.6) {
+      let highest = max(around);
+      value = (value + highest) / 2;
+    } else {
+      value = move_towards(value, sum(around) / 8, Math.random() * 10);
+    }
+    mean += value;
+    return Math.floor(value);
+  });
+  console.log(mean / (SIZE * SIZE));
 
   console.log('creating water');
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
