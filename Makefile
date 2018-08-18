@@ -48,7 +48,7 @@ js13kserver.zip:
 	curl -L https://github.com/js13kgames/js13kserver/archive/master.zip -o $@
 
 clean:
-	rm -rf debug/public release/public
+	rm -rf debug/public release/public doc
 
 squeaky: clean
 	rm -rf debug release js13kserver.zip
@@ -58,3 +58,6 @@ lint:
 
 fix:
 	eslint --fix src/**/*.js
+
+doc: $(SOURCES)
+	jsdoc -d doc $(SOURCES)

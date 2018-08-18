@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler) and [`eslint`](https://eslint.org).
+Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler), [`eslint`](https://eslint.org), and [`jsdoc`](https://usejsdoc.org).
 
 ## Build
 
