@@ -24,16 +24,20 @@ export default (function () {
     ];
 
     let height_to_color = (height) => {
+      if (height > 240) {
+        height = (height - 240) / 15;
+        return 'hsl(0,0%,' + scale_over_range(height, 70, 90) + '%)'
+      }
       if (height > 220) {
         height = (height - 220) / 35;
-        return 'hsl(35,48%,' + scale_over_range(height, 15, 29) + '%)'
+        return 'hsl(35,48%,' + scale_over_range(height, 29, 15) + '%)'
       }
-      if (height > 150) {
-        height = (height - 150) / 70;
-        return 'hsl(87,48%,' + scale_over_range(height, 15, 34) + '%)'
+      if (height > 110) {
+        height = (height - 110) / 110;
+        return 'hsl(87,48%,' + scale_over_range(height, 40, 15) + '%)'
       }
-      height = height / 150;
-      return 'hsl(70,56%,' + scale_over_range(height, 37, 55) + '%)'
+      height = height / 110;
+      return 'hsl(70,56%,' + scale_over_range(height, 55, 34) + '%)'
     };
 
     let bind = () => {
@@ -108,8 +112,7 @@ export default (function () {
           let internalCoord = block.coordFromWorld([x, y]);
           let height = block.terrain.get(internalCoord);
           let waterHeight = block.water.get(internalCoord);
-          base_ctx.fillStyle = height_to_color(
-            block.terrain.get(internalCoord));
+          base_ctx.fillStyle = height_to_color(block.terrain.get(internalCoord));
           base_ctx.fillRect(
             x - xs, y - ys,
             1, 1

@@ -4,8 +4,10 @@ export const sub = (a, b) => add(a, inv(b));
 export const scale = ([x, y], s) => [x*s, y*s];
 export const normal = (uniform_1, uniform_2) => Math.sqrt(-2 * Math.log(uniform_1)) * Math.cos(2 * Math.PI * uniform_2);
 export const inspect = (x) => { console.log(x); return x; };
-export const scale_over_range = (portion, lower, upper) => lower + (upper - lower) * portion;
-export const rand_range = (lower, upper) => lower + Math.random() * (upper - lower);
+export const scale_over_range = (portion, lower, upper) =>
+  lower + (upper - lower) * portion;
+export const rand_range = (lower, upper) =>
+  lower + Math.random() * (upper - lower);
 
 /*
 let isIterable = (x) => x != null && typeof x[Symbol.iterator] === 'function';
