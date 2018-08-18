@@ -1,4 +1,4 @@
-import Texture from './Texture.js';
+import Lens from './Lens.js';
 
 // The idea is that a block will contain all the things in an NxN (currently 16x16) region
 // For now, it just holds terrain
@@ -7,7 +7,7 @@ import Texture from './Texture.js';
  */
 function Block(coords, terrain) {
   this.coords = coords;
-  this.terrain = terrain || (new Texture([16, 16])).lens;
+  this.terrain = terrain || Lens.arrayAccess(new Uint8Array(16 * 16), [16, 16]);
 }
 
 Block.worldToBlock = ([c, r]) => [Math.floor(c / 16), Math.floor(r / 16)];

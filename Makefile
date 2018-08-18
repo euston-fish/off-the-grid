@@ -3,7 +3,6 @@ GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --langu
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
 SOURCES=src/Array.js \
         src/Lens.js \
-        src/Texture.js \
         src/Block.js \
         src/BlockManager.js \
         src/shared.js \

@@ -1,50 +1,64 @@
-import { add } from './shared.js';
-
 /**
  * @constructor
  */
-function Lens(get, set, size) {
+function Lens(get, set, keys) {
   this.get = get;
   this.set = set;
-  this.size = size;
+  this.keys = keys;
 }
 
-// TODO: decide whether/how to bother checking width and height
-
-Lens.prototype.keys = function*() {
-  for (let col = 0; col < this.size[0]; col++)
-    for (let row = 0; row < this.size[1]; row++)
-      yield [col, row];
+Lens.arrayAccess = function(data, size) {
+  let multipliers = Array(size.length).fill(1);
+  multipliers.forEach((_, i) => multipliers[i] *= (i === 0 ? 1 : size[i-1]));
+  let coordToIndex = coord =>
+    coord.zip(multipliers).map(([a, b]) => a * b).sum();
+  return new Lens(
+    (coord) => data[coordToIndex(coord)],
+    (coord, val) => data[coordToIndex(coord)] = val,
+    Array.cross(...size.map(s => Array(s).fill().iota()))
+  );
 };
+
+// TODO: decide whether/how to bother checking bounds
 
 Lens.prototype.update = function(coord, callback) {
   return this.set(coord, callback(this.get(coord)));
 };
 
 Lens.prototype.updateAll = function(callback) {
-  for (let coord of this.keys()) this.update(coord, callback);
+  for (let coord of this.keys) this.update(coord, callback);
 };
 
-Lens.prototype.subLens = function(origin, size) {
+Lens.prototype.offset = function(offset) {
   return new Lens(
-    (coords) => this.get(add(coords, origin)),
-    (coords, val) => this.set(add(coords, origin), val),
-    size
+    (coords) => this.get(coords.add(offset)),
+    (coords, val) => this.set(coords.add(offset), val),
+    this.keys // this is broken, but I'm not sure how (or if it's necessary) to fix it
   );
+};
+
+Lens.prototype.clip = function(predicate) {
+  return new Lens(
+    this.get,
+    this.set,
+    this.keys.filter(predicate)
+  );
+};
+
+Lens.prototype.window = function(origin, size) {
+  let w = this.offset(origin);
+  w.keys = Array.cross(...size.map(s => Array(s).fill().iota()));
+  return w;
 };
 
 Lens.prototype.toJSON = function() {
   let me = this;
-  return Array(me.size[0]).fill().map(
-    (_, c) => Array(me.size[1]).fill().map((_, r) => me.get([c, r]))
-  );
+  return this.keys.map(key => me.get(key));
 };
 
 Lens.prototype.fromJSON = function(json) {
   let me = this;
-  json.forEach((column, col) =>
-    column.forEach((val, row) =>
-      me.set([col, row], val)));
+  this.keys.zip(json).forEach(([key, val]) => me.set(key, val));
 };
 
 export default Lens;

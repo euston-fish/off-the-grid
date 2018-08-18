@@ -29,13 +29,21 @@ Array.prototype.iota = function(begin) {
 };
 
 // TODO: maybe make this give an iterator
-Array.prototype.cross = function(first, ...others) {
-  let value = (first === undefined ?
-    this.map(component => [ component ]) :
-    this.map(component => first.cross(...others).map(item => [component, ...item])));
-  return value;
+Array.prototype.cross = function(...others) {
+  return Array.cross(this, ...others);
+};
+
+Array.prototype.flat = function() {
+  return this.reduce((acc, val) => acc.concat(val), []);
+};
+
+Array.cross = function(first, ...others) {
+  return first === undefined ?
+    [[]] :
+    first.map(component => Array.cross(...others).map(item => [component, ...item])).flat();
 };
 
 Array.prototype.swizzle = function(indices) {
   return indices.map(index => this[index]);
 };
+
