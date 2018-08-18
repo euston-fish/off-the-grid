@@ -1,4 +1,4 @@
-import { normal } from './shared.js';
+import { normal, randRound } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 
@@ -29,7 +29,7 @@ export default function() {
         let terrains = [a, b].map(c => terrain.get(c));
         let saturated = Array.zip(depths, terrains).map(([depth, terrain]) => depth > terrain);
         let flowRate = saturated.map(s => s ? 0.4 : 0.04).product();
-        let flowAmount = Math.ceil((depths[0] - depths[1]) * flowRate);
+        let flowAmount = randRound((depths[0] - depths[1]) * flowRate);
         water.set(a, depths[0] - flowAmount);
         water.set(b, depths[1] + flowAmount);
       }

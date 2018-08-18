@@ -8,6 +8,7 @@ export const scale_over_range = (portion, lower, upper) =>
   lower + (upper - lower) * portion;
 export const rand_range = (lower, upper) =>
   lower + Math.random() * (upper - lower);
+export const randRound = (val) => Math.floor(val) + (Math.random() > val - Math.floor(val));
 
 /*
 let isIterable = (x) => x != null && typeof x[Symbol.iterator] === 'function';
