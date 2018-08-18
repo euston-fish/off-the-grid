@@ -1,20 +1,25 @@
 language: node_js
+
 node_js:
-  - "node"
+- node
 
 install:
-  - npm install google-closure-compiler eslint jsdoc
-  - export PATH=$PATH:$(pwd)/node_modules/.bin
+- npm install google-closure-compiler eslint jsdoc
+- export PATH=$PATH:$(pwd)/node_modules/.bin
 
 script:
-  - make lint
-  - make doc
+- make lint
+- make doc
 
 deploy:
   provider: pages
   local-dir: doc
   skip-cleanup: true
-  github-token: $GITHUB_TOKEN
+  github-token: "$GITHUB_TOKEN"
   keep-history: true
   on:
     branch: ci
+
+env:
+  global:
+    secure: h0lT1C7Fto4chGFiNxNPY+moSOZ4t0b9rn7ICtTbo8sJKRBxqP5Y4o578sKSsOYdxnRqZdouLsRHdUob5yyzoFn+b10SVLJ91fPyo+zcZ/K7QM5xbDjnrTwFQdday7jki1ubJT4x2+NG9yW9mO4Un5dSXafusBGV1TFNZZckrMtWjyu1DxNB6SRztGxdWozd7Y8TmidLkSZ703nfFiYFgzBT5druP8f4rnmQ+IawtRY1/eaeyHikVFd4XNEqv0o0O984OPVucqKPrDQDk2GLhBT7kQwYs21r/LInBF/hOpd1kfmwCCOYzD2G9FaEz8vZtDMS450MXkls/LNcbH0dN0nBEsUx5ax2odaIv4J+AkYH7y81XeqtII81/aCVrWUFOuXdDr5RvOonp/cpwjd2YTUdnHAhuunqwUfuKm+jgnirAlmHrOjKJ1ez+wFINdXb47xpmRGm9xAPv7/75CjI/8joqMFK3N3l6YURZdGZSnbqPuq8f7hOZ+uuiIjt433+wWhaDxwa33O4IEUHBz7fL6CCziR03aZD89P/bqoRxQyq/FR5eAauNJ7UwsJB9RDYLOmk1L8ClU8u5l1iZpIRhSc36Bp37Bev4zEPB00lEsPlChLKFMDXRF7DDKanyfuKbH/okNKkrEVlyqW7/6f/sb6H2pUYQPkeETBCekgmd7Q=
