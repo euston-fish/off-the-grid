@@ -94,7 +94,8 @@ export default (function () {
           let block = blockManager.get(blockCoord);
           let internalCoord = block.coordFromWorld([x, y]);
           let height = block.terrain.get(internalCoord);
-          base_ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
+          let waterHeight = block.water.get(internalCoord);
+          base_ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + Math.max(height, waterHeight) + ')';
           base_ctx.fillRect(
             x - xs,
             y - ys,
