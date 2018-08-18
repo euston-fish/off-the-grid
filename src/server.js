@@ -12,7 +12,7 @@ export default function() {
   });
 
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+  water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
 
   console.log('creating blocks');
   let blocks = Array(1024 / 16).fill().map(

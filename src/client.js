@@ -23,7 +23,11 @@ export default (function () {
       [[14, 24], new GridItem('trees')],
     ];
 
-    let height_to_color = (height) => {
+    let env_to_color = (height, water_height) => {
+      if (water_height > height) {
+        water_height = water_height / 255;
+        return 'hsl(230,80%,' + scale_over_range(water_height, 32, 72) + '%)'
+      }
       if (height > 240) {
         height = (height - 240) / 15;
         return 'hsl(0,0%,' + scale_over_range(height, 70, 90) + '%)'
@@ -110,9 +114,9 @@ export default (function () {
           let blockCoord = Block.worldToBlock([x, y]);
           let block = blockManager.get(blockCoord);
           let internalCoord = block.coordFromWorld([x, y]);
+          let water_height = block.water.get(internalCoord);
           let height = block.terrain.get(internalCoord);
-          let waterHeight = block.water.get(internalCoord);
-          base_ctx.fillStyle = height_to_color(block.terrain.get(internalCoord));
+          base_ctx.fillStyle = env_to_color(height, water_height);
           base_ctx.fillRect(
             x - xs, y - ys,
             1, 1
