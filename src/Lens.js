@@ -113,8 +113,7 @@ Lens.prototype.window = function(origin, size) {
  * @returns {Array} The contents of the Lens in a format for JSON transmission.
  */
 Lens.prototype.toJSON = function() {
-  let me = this;
-  return this.keys().map(key => me.get(key));
+  return this.keys().map(key => this.get(key));
 };
 
 /**
@@ -122,8 +121,7 @@ Lens.prototype.toJSON = function() {
  * @param {Array} json - The (already deserialised) object to convert back from.
  */
 Lens.prototype.fromJSON = function(json) {
-  let me = this;
-  this.keys().zip(json).forEach(([key, val]) => me.set(key, val));
+  this.keys().zip(json).forEach(([key, val]) => this.set(key, val));
 };
 
 export default Lens;

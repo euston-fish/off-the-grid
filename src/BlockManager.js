@@ -11,17 +11,16 @@ function BlockManager() {
 }
 
 BlockManager.prototype.get = function(coord) {
-  let me = this;
   if (this.blocks[coord] === undefined) this.blocks[coord] = new Block(coord);
   // If the (block doesn't exist or is older than 5 seconds) and isn't already being fetched
   if ((new Date()) - (this.ages[coord] || 0) > 5000 && !(coord in this.fetching)) {
     this.fetching[coord] = true;
     fetch(coord)
-      .then(json => me.blocks[coord].fromJSON(json))
-      .then(() => me.ages[coord] = new Date())
-      .then(() => delete me.fetching[coord])
-      .then(() => setTimeout(() => me.get(coord), 5100))
-      .then(() => me.dispatchEvent(new Event('update', coord)));
+      .then(json => this.blocks[coord].fromJSON(json))
+      .then(() => this.ages[coord] = new Date())
+      .then(() => delete this.fetching[coord])
+      .then(() => setTimeout(() => this.get(coord), 5100))
+      .then(() => this.dispatchEvent(new Event('update', coord)));
   }
   return this.blocks[coord];
 };
