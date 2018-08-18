@@ -1,5 +1,3 @@
-import { add } from './shared.js';
-
 /**
  * @constructor
  */
@@ -9,12 +7,19 @@ function Lens(get, set, size) {
   this.size = size;
 }
 
-// TODO: decide whether/how to bother checking width and height
+Lens.arrayAccess = function(data, size) {
+  let coordToIndex = ([c, r]) => c * size[1] + r;
+  return new Lens(
+    (coord) => data[coordToIndex(coord)],
+    (coord, val) => data[coordToIndex(coord)] = val,
+    size
+  );
+};
 
-Lens.prototype.keys = function*() {
-  for (let col = 0; col < this.size[0]; col++)
-    for (let row = 0; row < this.size[1]; row++)
-      yield [col, row];
+// TODO: decide whether/how to bother checking bounds
+Lens.prototype.keys = function() {
+  // TODO: maybe make this an iterator
+  return Array.cross(...this.size.map(s => Array(s).fill().iota()));
 };
 
 Lens.prototype.update = function(coord, callback) {
@@ -25,26 +30,34 @@ Lens.prototype.updateAll = function(callback) {
   for (let coord of this.keys()) this.update(coord, callback);
 };
 
-Lens.prototype.subLens = function(origin, size) {
+Lens.prototype.offset = function(offset) {
   return new Lens(
-    (coords) => this.get(add(coords, origin)),
-    (coords, val) => this.set(add(coords, origin), val),
+    (coords) => this.get(coords.add(offset)),
+    (coords, val) => this.set(coords.add(offset), val),
+    this.size.sub(offset)
+  );
+};
+
+Lens.prototype.shrink = function(size) {
+  return new Lens(
+    this.get,
+    this.set,
     size
   );
 };
 
+Lens.prototype.window = function(origin, size) {
+  return this.offset(origin).shrink(size);
+};
+
 Lens.prototype.toJSON = function() {
   let me = this;
-  return Array(me.size[0]).fill().map(
-    (_, c) => Array(me.size[1]).fill().map((_, r) => me.get([c, r]))
-  );
+  return this.keys().map(key => me.get(key));
 };
 
 Lens.prototype.fromJSON = function(json) {
   let me = this;
-  json.forEach((column, col) =>
-    column.forEach((val, row) =>
-      me.set([col, row], val)));
+  this.keys().zip(json).forEach(([key, val]) => me.set(key, val));
 };
 
 export default Lens;

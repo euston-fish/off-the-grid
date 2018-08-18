@@ -1,16 +1,20 @@
 import { normal } from './shared.js';
-import Texture from './Texture.js';
+import Lens from './Lens.js';
 import Block from './Block.js';
 
 export default function() {
   const SIZE = 1024;
-  let terrain = new Texture([SIZE, SIZE]);
-  terrain.lens.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+  console.log('creating terrain array');
+  let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
+  console.log('updating terrain');
+  terrain.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+  console.log('creating blocks');
   let blocks = Array(1024 / 16).fill().map(
     (_, c) => Array(1024 / 16).fill().map(
-      (_, r) => new Block([c, r], terrain.lens.subLens([c * 16, r * 16], [16, 16]))
+      (_, r) => new Block([c, r], terrain.window([c * 16, r * 16], [16, 16]))
     )
   );
+  console.log('done');
 
 
   return {

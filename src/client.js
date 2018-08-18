@@ -12,6 +12,7 @@ export default (function () {
     let to_index = (a) => Math.floor(a / W);
 
     let blockManager = new BlockManager();
+    blockManager.addEventListener('update', () => window.requestAnimationFrame(draw));
 
     let get_view_range = ([x, y], [w, h]) => [
       [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
@@ -114,6 +115,5 @@ export default (function () {
 
     bind();
     draw();
-    setTimeout(draw, 5000);
   }, false);
 });

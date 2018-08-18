@@ -1,8 +1,8 @@
 GCC=google-closure-compiler
 GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
-SOURCES=src/Lens.js \
-        src/Texture.js \
+SOURCES=src/Array.js \
+        src/Lens.js \
         src/Block.js \
         src/BlockManager.js \
         src/shared.js \
