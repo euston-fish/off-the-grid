@@ -3,27 +3,28 @@ import Lens from './Lens.js';
 import Block from './Block.js';
 
 export default function() {
-  const SIZE = 1024;
-  console.log('creating terrain array');
+  const SIZE = 128;
+  console.log('creating terrain');
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  console.log('updating terrain');
   terrain.updateAll(() => {
     return Math.floor(normal(Math.random(), Math.random()) * 128);
   });
 
+  console.log('creating water');
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
 
   console.log('creating blocks');
-  let blocks = Array(1024 / 16).fill().map(
-    (_, c) => Array(1024 / 16).fill().map(
-      (_, r) => new Block([c, r], {
-        terrain: terrain.window([c * 16, r * 16], [16, 16]),
-        water: water.window([c * 16, r * 16], [16, 16])
-      })
-    )
-  );
+  let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16])
+  blocks.updateAll((_, [c, r]) => new Block([c, r], {
+    terrain: terrain.window([c * 16, r * 16], [16, 16]),
+    water: water.window([c * 16, r * 16], [16, 16])
+  }))
   console.log('done');
+
+  let tick = () => {
+
+  };
 
   return {
     'io': (socket) => {
@@ -35,7 +36,7 @@ export default function() {
     },
 
     'block/:col/:row': (req, res) => {
-      res.json(blocks[parseInt(req['params']['col'])][parseInt(req['params']['row'])]);
+      res.json(blocks.get([parseInt(req['params']['col']), parseInt(req['params']['row'])]));
     }
   };
 }

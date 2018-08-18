@@ -99,7 +99,6 @@ export default (function () {
       }
     });
     let draw = () => {
-      console.log(blockManager.blocks);
       base_ctx.clearRect(0, 0, base_canvas.width, base_canvas.height);
       detail_ctx.clearRect(0, 0, detail_canvas.width, detail_canvas.height);
       let [[xs, ys], [xe, ye]] = get_view_range(viewport_offset,

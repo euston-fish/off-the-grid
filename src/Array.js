@@ -1,6 +1,10 @@
 // TODO: work out how this behaves with lists of different lengths
+Array.zip = function(...arrays) {
+  return (arrays[0] || []).map((_, i) => arrays.map(array => array[i]));
+};
+
 Array.prototype.zip = function(...others) {
-  return this.map((a, i) => [a, ...others.map(other => other[i])]);
+  return Array.zip(this, ...others);
 };
 
 Array.prototype.sum = function() {

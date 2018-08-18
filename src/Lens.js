@@ -1,28 +1,36 @@
 /**
  * Provides access to a 2D region.
  * @constructor
- * @param {Lens~getter} get
- * @param {Lens~setter} set
+ * @param {Lens~getter} getter
+ * @param {Lens~setter} setter
  * @param {Lens~coordinate} size - The size of the region.
  */
-function Lens(get, set, size) {
-  this.get = get;
-  this.set = set;
+function Lens(getter, setter, size) {
+  this.getter = getter;
+  this.setter = setter;
   this.size = size;
 }
 
 /**
  * Gets the value at a coordinate within the Lens.
  * @callback Lens~getter
- * @param {Lens~coordinate} coordinate - The coordinate to get.
+ * @param {Lens~coordinate} coordinate - The coordinate to get. Guaranteed to be between [0, 0] and size.
  * @returns The value found at that coordinate
  */
 
 /**
  * Sets the value at a coordinate within the Lens.
  * @callback Lens~setter
- * @param {Lens~coordinate} coordinate - The coordinate to set.
+ * @param {Lens~coordinate} coordinate - The coordinate to set. Guaranteed to be between [0, 0] and size.
  * @param value - The value to set at that coordinate
+ */
+
+/**
+ * Updates a value in a Lens.
+ * @callback Lens~update
+ * @param value - The previous value.
+ * @param {Lens~coordinate} coordinate - The coordinate of the value.
+ * @returns The value to update with.
  */
 
 /**
@@ -56,9 +64,29 @@ Lens.prototype.keys = function() {
 };
 
 /**
+ * Gets the value at a coordinate within the Lens.
+ * @function
+ * @param {Lens~coordinate} coordinate - The coordinate to get. Wrapped if outside of [0, 0] to size.
+ * @returns The value found at that coordinate
+ */
+Lens.prototype.get = function(coordinate) {
+  return this.getter(Array.zip(coordinate, this.size).map(([x, s]) => x.mod(s)));
+};
+
+/**
+ * Sets the value at a coordinate within the Lens.
+ * @function
+ * @param {Lens~coordinate} coordinate - The coordinate to set. Wrapped if outside of [0, 0] to size.
+ * @param value - The value to set at that coordinate
+ */
+Lens.prototype.set = function(coordinate, value) {
+  return this.setter(Array.zip(coordinate, this.size).map(([x, s]) => x.mod(s)), value);
+};
+
+/**
  * @function
  * @param {Lens~coordinate} coordinate - The coordinate to update.
- * @param {function(*, *)} callback - The callback used to update the value.
+ * @param {Lens~update} callback - The callback used to update the value.
  */
 Lens.prototype.update = function(coordinate, callback) {
   this.set(coordinate, callback(this.get(coordinate), coordinate));
@@ -66,7 +94,7 @@ Lens.prototype.update = function(coordinate, callback) {
 
 /**
  * @function
- * @param {function(*, *)} callback - The callback used to update values.
+ * @param {Lens~update} callback - The callback used to update values.
  */
 Lens.prototype.updateAll = function(callback) {
   this.keys().forEach(coordinate => this.update(coordinate, callback));
@@ -92,8 +120,8 @@ Lens.prototype.offset = function(offset) {
  */
 Lens.prototype.shrink = function(size) {
   return new Lens(
-    this.get,
-    this.set,
+    (coords) => this.get(coords),
+    (coords) => this.set(coords),
     size
   );
 };
