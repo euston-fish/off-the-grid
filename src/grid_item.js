@@ -32,10 +32,10 @@ const renderers = {
       ctx.fillRect((idx % 4) * 8, Math.floor(idx / 4) * 8, 8, 8);
     });
   }
-}
+};
 
 GridItem.prototype.draw = function(ctx) {
   renderers[this.type](ctx, this);
-}
+};
 
 export default GridItem;

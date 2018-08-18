@@ -7,8 +7,8 @@ export default function() {
   console.log('creating terrain array');
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   console.log('updating terrain');
-  terrain.updateAll((_, [x, y]) => {
-    return Math.floor(normal(Math.random(), Math.random()) * 128)
+  terrain.updateAll(() => {
+    return Math.floor(normal(Math.random(), Math.random()) * 128);
   });
 
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
