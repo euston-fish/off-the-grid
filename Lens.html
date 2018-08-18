@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Lens<span class="signature">(get, set, size)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Lens<span class="signature">(getter, setter, size)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="Lens"><span class="type-signature"></span>new Lens<span class="signature">(get, set, size)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Lens"><span class="type-signature"></span>new Lens<span class="signature">(getter, setter, size)</span><span class="type-signature"></span></h4>
     
 
     
@@ -85,7 +85,7 @@
 
         <tr>
             
-                <td class="name"><code>get</code></td>
+                <td class="name"><code>getter</code></td>
             
 
             <td class="type">
@@ -108,7 +108,7 @@
 
         <tr>
             
-                <td class="name"><code>set</code></td>
+                <td class="name"><code>setter</code></td>
             
 
             <td class="type">
@@ -365,7 +365,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line39">line 39</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
@@ -518,7 +518,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line123">line 123</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line151">line 151</a>
     </li></ul></dd>
     
 
@@ -541,6 +541,151 @@
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(coordinate)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Gets the value at a coordinate within the Lens.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>coordinate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Lens.html#~coordinate">Lens~coordinate</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The coordinate to get. Wrapped if outside of [0, 0] to size.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line72">line 72</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The value found at that coordinate
+</div>
+
+
+
+    
 
 
 
@@ -600,7 +745,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line53">line 53</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line61">line 61</a>
     </li></ul></dd>
     
 
@@ -753,7 +898,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line80">line 80</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line108">line 108</a>
     </li></ul></dd>
     
 
@@ -798,6 +943,159 @@
 </dl>
 
     
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(coordinate, value)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Sets the value at a coordinate within the Lens.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>coordinate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Lens.html#~coordinate">Lens~coordinate</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The coordinate to set. Wrapped if outside of [0, 0] to size.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value to set at that coordinate</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -906,7 +1204,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line93">line 93</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line121">line 121</a>
     </li></ul></dd>
     
 
@@ -1010,7 +1308,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line115">line 115</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line143">line 143</a>
     </li></ul></dd>
     
 
@@ -1135,7 +1433,7 @@
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type"><a href="Lens.html#~update">Lens~update</a></span>
 
 
             
@@ -1186,7 +1484,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line63">line 63</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line91">line 91</a>
     </li></ul></dd>
     
 
@@ -1266,7 +1564,7 @@
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type"><a href="Lens.html#~update">Lens~update</a></span>
 
 
             
@@ -1317,7 +1615,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line71">line 71</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line99">line 99</a>
     </li></ul></dd>
     
 
@@ -1471,7 +1769,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line107">line 107</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -1583,7 +1881,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line28">line 28</a>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -1665,7 +1963,7 @@
 
             
 
-            <td class="description last">The coordinate to get.</td>
+            <td class="description last">The coordinate to get. Guaranteed to be between [0, 0] and size.</td>
         </tr>
 
     
@@ -1810,7 +2108,7 @@
 
             
 
-            <td class="description last">The coordinate to set.</td>
+            <td class="description last">The coordinate to set. Guaranteed to be between [0, 0] and size.</td>
         </tr>
 
     
@@ -1898,6 +2196,169 @@
 
 
             
+                
+
+    
+
+    
+    <h4 class="name" id="~update"><span class="type-signature"></span>update<span class="signature">(value, coordinate)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Updates a value in a Lens.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The previous value.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>coordinate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Lens.html#~coordinate">Lens~coordinate</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The coordinate of the value.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Lens.js.html">Lens.js</a>, <a href="Lens.js.html#line28">line 28</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The value to update with.
+</div>
+
+
+
+    
+
+
+
+
+
+            
     
 
     
@@ -1917,7 +2378,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Aug 18 2018 06:44:50 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Aug 18 2018 08:14:05 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
