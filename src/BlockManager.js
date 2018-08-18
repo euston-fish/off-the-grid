@@ -13,13 +13,13 @@ function BlockManager() {
 BlockManager.prototype.get = function(coord) {
   if (this.blocks[coord] === undefined) this.blocks[coord] = new Block(coord);
   // If the (block doesn't exist or is older than 5 seconds) and isn't already being fetched
-  if ((new Date()) - (this.ages[coord] || 0) > 5000 && !(coord in this.fetching)) {
+  if ((new Date()) - (this.ages[coord] || 0) > 1000 && !(coord in this.fetching)) {
     this.fetching[coord] = true;
     fetch(coord)
       .then(json => this.blocks[coord].fromJSON(json))
       .then(() => this.ages[coord] = new Date())
       .then(() => delete this.fetching[coord])
-      .then(() => setTimeout(() => this.get(coord), 5100))
+      .then(() => setTimeout(() => this.get(coord), 1050))
       .then(() => this.dispatchEvent(new Event('update', coord)));
   }
   return this.blocks[coord];

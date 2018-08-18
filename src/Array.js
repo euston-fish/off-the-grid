@@ -11,6 +11,10 @@ Array.prototype.sum = function() {
   return this.reduce((acc, cur) => acc + cur, 0);
 };
 
+Array.prototype.product = function() {
+  return this.reduce((acc, cur) => acc * cur, 1);
+};
+
 Array.prototype.add = function(...others) {
   return this.zip(...others).map(row => row.sum());
 };
