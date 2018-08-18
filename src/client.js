@@ -126,7 +126,7 @@ export default (function () {
       objects.forEach(([[x, y], object]) => {
         detail_ctx.save();
         detail_ctx.translate(W * (x - xs) - ox,
-          W * (x - ys) - oy);
+          W * (y - ys) - oy);
         object.draw(detail_ctx);
         detail_ctx.restore();
       });

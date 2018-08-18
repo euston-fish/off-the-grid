@@ -23,6 +23,7 @@ const renderers = {
     ctx.fillRect(...coords);
   },
   'rain': (ctx, item) => {
+    item;
     ctx.fillStyle = '#77AEEDbb';
     ctx.fillRect(12, 12, 10, 10);
   },
