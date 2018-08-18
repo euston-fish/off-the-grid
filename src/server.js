@@ -7,7 +7,11 @@ export default function() {
   console.log('creating terrain array');
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   console.log('updating terrain');
-  terrain.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+  terrain.updateAll((_, [x, y]) => {
+    console.log(x, y);
+    return Math.min(x, 255);
+    //Math.floor(normal(Math.random(), Math.random()) * 128)
+  });
   console.log('creating blocks');
   let blocks = Array(1024 / 16).fill().map(
     (_, c) => Array(1024 / 16).fill().map(

@@ -61,7 +61,7 @@ Lens.prototype.keys = function() {
  * @param {function(*, *)} callback - The callback used to update the value.
  */
 Lens.prototype.update = function(coordinate, callback) {
-  this.set(coordinate, callback(this.get(coordinate)));
+  this.set(coordinate, callback(this.get(coordinate), coordinate));
 };
 
 /**

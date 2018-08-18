@@ -1,4 +1,4 @@
-import { sub } from './shared.js';
+import { sub, scale_over_range } from './shared.js';
 import BlockManager from './BlockManager.js';
 import Block from './Block.js';
 import GridItem from './grid_item.js';
@@ -22,6 +22,19 @@ export default (function () {
       [[18, 24], new GridItem('cloud', {direction: 3})],
       [[14, 24], new GridItem('trees')],
     ];
+
+    let height_to_color = (height) => {
+      if (height > 220) {
+        height = (height - 220) / 35;
+        return 'hsl(35,48%,' + scale_over_range(height, 15, 29) + '%)'
+      }
+      if (height > 150) {
+        height = (height - 150) / 70;
+        return 'hsl(87,48%,' + scale_over_range(height, 15, 34) + '%)'
+      }
+      height = height / 150;
+      return 'hsl(70,56%,' + scale_over_range(height, 37, 55) + '%)'
+    };
 
     let bind = () => {
       socket.on('start', () => {
@@ -93,13 +106,11 @@ export default (function () {
           let blockCoord = Block.worldToBlock([x, y]);
           let block = blockManager.get(blockCoord);
           let internalCoord = block.coordFromWorld([x, y]);
-          let height = block.terrain.get(internalCoord);
-          base_ctx.fillStyle = 'rgb(' + height + ',' + height + ',' + height + ')';
+          base_ctx.fillStyle = height_to_color(
+            block.terrain.get(internalCoord));
           base_ctx.fillRect(
-            x - xs,
-            y - ys,
-            1,
-            1
+            x - xs, y - ys,
+            1, 1
           );
         }
       }
