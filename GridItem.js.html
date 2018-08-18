@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: Block.js</title>
+    <title>JSDoc: Source: GridItem.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: Block.js</h1>
+    <h1 class="page-title">Source: GridItem.js</h1>
 
     
 
@@ -26,43 +26,51 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import Lens from './Lens.js';
+            <pre class="prettyprint source linenums"><code>import { rand_range } from './shared.js';
 
-// The idea is that a block will contain all the things in an NxN (currently 16x16) region
-// For now, it just holds terrain
 /**
  * @constructor
  */
-function Block(coords, block) {
-  this.coords = coords;
-  let { terrain, water } = block || {};
-  this.terrain = terrain || Lens.arrayAccess(new Uint8Array(16 * 16), [16, 16]);
-  this.water = water || Lens.arrayAccess(new Uint8Array(16 * 16), [16, 16]);
+function GridItem(type, args) {
+  this.type = type;
+  this.args = args || {};
+  if (this.type == 'trees') {
+    this.args.colors = [];
+    for (let i = 0; i &lt; 16; i++) {
+      this.args.colors.push('hsl(104,66%,' + rand_range(21, 41) + '%)');
+    }
+  }
 }
 
-Block.worldToBlock = ([c, r]) => [Math.floor(c / 16), Math.floor(r / 16)];
-
-Block.prototype.coordToWorld = function(coord) {
-  return coord.add(this.coords.scale(16));
+const renderers = {
+  'cloud': (ctx, item) => {
+    let coords = [
+      [0, 0, 32, 10],
+      [23, 0, 10, 32],
+      [0, 22, 32, 10],
+      [0, 0, 10, 32],
+    ][item.args.direction || 0];
+    ctx.fillStyle = '#CADDE3bb';
+    ctx.fillRect(...coords);
+  },
+  'rain': (ctx, item) => {
+    item;
+    ctx.fillStyle = '#77AEEDbb';
+    ctx.fillRect(12, 12, 10, 10);
+  },
+  'trees': (ctx, item) => {
+    item.args.colors.forEach((color, idx) => {
+      ctx.fillStyle = color;
+      ctx.fillRect((idx % 4) * 8, Math.floor(idx / 4) * 8, 8, 8);
+    });
+  }
 };
 
-Block.prototype.coordFromWorld = function(coord) {
-  return coord.sub(this.coords.scale(16));
+GridItem.prototype.draw = function(ctx) {
+  renderers[this.type](ctx, this);
 };
 
-Block.prototype.fromJSON = function({ 'terrain': terrain, 'water': water }) {
-  this.terrain.fromJSON(terrain);
-  this.water.fromJSON(water);
-};
-
-Block.prototype.toJSON = function() {
-  return {
-    'terrain': this.terrain.toJSON(),
-    'water': this.water.toJSON()
-  };
-};
-
-export default Block;
+export default GridItem;
 </code></pre>
         </article>
     </section>
