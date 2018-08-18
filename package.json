@@ -1,0 +1,22 @@
+{
+  "name": "off-the-grid",
+  "version": "0.0.1",
+  "description": "a work-in-progress entry for JS13kGames 2018",
+  "main": "index.js",
+  "dependencies": {
+    "prettier": "^1.14.2"
+  },
+  "devDependencies": {
+    "google-closure-compiler": "^20180805.0.0"
+  },
+  "scripts": {
+    "test": "make lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/euston-fish/off-the-grid.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/euston-fish/off-the-grid#readme"
+}
