@@ -1,7 +1,7 @@
 import { sub, scale_over_range } from './shared.js';
 import BlockManager from './BlockManager.js';
 import Block from './Block.js';
-import GridItem from './grid_item.js';
+import GridItem from './GridItem.js';
 
 export default (function () {
   /* global io */

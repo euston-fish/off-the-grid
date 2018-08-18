@@ -1,5 +1,8 @@
 import { rand_range } from './shared.js';
 
+/**
+ * @constructor
+ */
 function GridItem(type, args) {
   this.type = type;
   this.args = args || {};
