@@ -1,11 +1,12 @@
 import { sub } from './shared.js';
 import BlockManager from './BlockManager.js';
 import Block from './Block.js';
+import GridItem from './grid_item.js';
 
 export default (function () {
   /* global io */
   window.addEventListener('load', () => {
-    const W = 34;
+    const W = 32;
 
     let socket;
     let to_index = (a) => Math.floor(a / W);
@@ -17,9 +18,9 @@ export default (function () {
       [to_index(x), to_index(y)], [to_index(x + w), to_index(y + h)]];
 
     let objects = [
-      [[12, 23], '#ff0000'],
-      [[24, 36], '#0000ff'],
-      [[46, 3], '#00ff00'],
+      [[12, 23], new GridItem('cloud', {direction: 2})],
+      [[18, 24], new GridItem('cloud', {direction: 3})],
+      [[14, 24], new GridItem('trees')],
     ];
 
     let bind = () => {
@@ -102,14 +103,12 @@ export default (function () {
           );
         }
       }
-      objects.forEach(([[x, y], color]) => {
-        detail_ctx.fillStyle = color;
-        detail_ctx.fillRect(
-          W * (x - xs) - ox,
-          W * (y - ys) - oy,
-          W,
-          W
-        );
+      objects.forEach(([[x, y], object]) => {
+        detail_ctx.save();
+        detail_ctx.translate(W * (x - xs) - ox,
+          W * (x - ys) - oy);
+        object.draw(detail_ctx);
+        detail_ctx.restore();
       });
       detail_ctx.fillText([xs, ys].toString(), 5, 15);
     };

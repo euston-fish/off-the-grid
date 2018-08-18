@@ -8,6 +8,7 @@ SOURCES=src/Array.js \
         src/shared.js \
         src/server.js \
         src/client.js \
+        src/grid_item.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html
 
