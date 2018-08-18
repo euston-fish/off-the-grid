@@ -13,6 +13,7 @@ export const move_towards = (from, to, max_amount) =>
 export const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 export const min = (arr) => arr.reduce((a, b) => a < b ? a : b);
 export const max = (arr) => arr.reduce((a, b) => a > b ? a : b);
+export const randRound = (val) => Math.floor(val) + (Math.random() < val - Math.floor(val));
 
 /*
 let isIterable = (x) => x != null && typeof x[Symbol.iterator] === 'function';

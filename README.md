@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler), [`eslint`](https://eslint.org), and [`jsdoc`](https://usejsdoc.org).
+Ensure you have `make`, `bash`, `npm`, `unzip`, [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler), [`eslint`](https://eslint.org), and [`jsdoc`](https://usejsdoc.org).
 
 ## Build
 
@@ -21,11 +21,9 @@ Ensure you have `make`, `npm`, `unzip`, [`google-closure-compiler`](https://www.
 * Edit files under `src`
 * To lint the project, `make lint`
 * To fix correctable errors, `make fix`
+* In debug mode, set `window.debugParams` to a list of keys of params to debug on the grid
 
 ## Todo
 
-- Load terrain in chunks
-- Implement other layers
-- Do some actual simulation
 - Make build tools for compressing and measuring
 - Maybe use less `make`
