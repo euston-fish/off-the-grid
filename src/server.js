@@ -12,14 +12,20 @@ export default function() {
     return Math.min(x, 255);
     //Math.floor(normal(Math.random(), Math.random()) * 128)
   });
+
+  let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
+  water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 128));
+
   console.log('creating blocks');
   let blocks = Array(1024 / 16).fill().map(
     (_, c) => Array(1024 / 16).fill().map(
-      (_, r) => new Block([c, r], terrain.window([c * 16, r * 16], [16, 16]))
+      (_, r) => new Block([c, r], {
+        terrain: terrain.window([c * 16, r * 16], [16, 16]),
+        water: water.window([c * 16, r * 16], [16, 16])
+      })
     )
   );
   console.log('done');
-
 
   return {
     'io': (socket) => {

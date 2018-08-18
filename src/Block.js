@@ -5,9 +5,11 @@ import Lens from './Lens.js';
 /**
  * @constructor
  */
-function Block(coords, terrain) {
+function Block(coords, block) {
   this.coords = coords;
+  let { terrain, water } = block || {};
   this.terrain = terrain || Lens.arrayAccess(new Uint8Array(16 * 16), [16, 16]);
+  this.water = water || Lens.arrayAccess(new Uint8Array(16 * 16), [16, 16]);
 }
 
 Block.worldToBlock = ([c, r]) => [Math.floor(c / 16), Math.floor(r / 16)];
@@ -20,13 +22,15 @@ Block.prototype.coordFromWorld = function(coord) {
   return coord.sub(this.coords.scale(16));
 };
 
-Block.prototype.fromJSON = function({ 'terrain': terrain }) {
+Block.prototype.fromJSON = function({ 'terrain': terrain, 'water': water }) {
   this.terrain.fromJSON(terrain);
+  this.water.fromJSON(water);
 };
 
 Block.prototype.toJSON = function() {
   return {
-    'terrain': this.terrain.toJSON()
+    'terrain': this.terrain.toJSON(),
+    'water': this.water.toJSON()
   };
 };
 

@@ -106,6 +106,8 @@ export default (function () {
           let blockCoord = Block.worldToBlock([x, y]);
           let block = blockManager.get(blockCoord);
           let internalCoord = block.coordFromWorld([x, y]);
+          let height = block.terrain.get(internalCoord);
+          let waterHeight = block.water.get(internalCoord);
           base_ctx.fillStyle = height_to_color(
             block.terrain.get(internalCoord));
           base_ctx.fillRect(
