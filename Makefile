@@ -50,7 +50,7 @@ tmp:
 debug: $(addprefix debug/public/,$(OUTPUTS)) | debug/js13kserver
 
 debug_run: debug
-	cd debug; npm run start
+	cd debug; npm i; npm run start
 
 debug/public/shared.js: $(SOURCES) externs.js
 	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) <(echo "const DEBUG=true") $(SOURCES) --js_output_file $@
@@ -65,7 +65,7 @@ debug/public/shared.js: $(SOURCES) externs.js
 release: $(addprefix release/public/,$(OUTPUTS)) release/js13kserver
 
 release_run: release
-	cd release; npm run start
+	cd release; npm i; npm run start
 
 release/public/shared.js: $(SOURCES) externs.js
 	$(GCC) $(GCCFLAGS) <(echo "const DEBUG=false") $(SOURCES) --js_output_file $@
@@ -74,8 +74,6 @@ release/public/shared.js: $(SOURCES) externs.js
 	unzip $^ -x js13kserver-master/public/*
 	mv js13kserver-master/* $(dir $@)
 	rm -rf js13kserver-master
-	#rm -r $(dir $@)/public
-	cd $(dir $@); npm install
 	touch $@
 
 js13kserver.zip:
