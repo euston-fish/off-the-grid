@@ -7,14 +7,14 @@ let SIZE = 1024;
  */
 function Game() {
   let module = new WebAssembly.Module(gameSource);
-  this.game = new WebAssembly.Instance(module, { 'env': { 'random': Math.random } });
+  this.game = new WebAssembly.Instance(module, { 'env': { 'random': Math.random, 'log': (x) => console.log('from rust with love: ' + x)  } });
   this.game.exports['init']();
   let memory = this.game.exports['memory'];
   this.address = this.game.exports['address']();
   console.log('address: ' + this.address);
-  this.terrain = new Uint8Array(memory.buffer, this.address, SIZE * SIZE);
+  this.terrain = new Int8Array(memory.buffer, this.address, SIZE * SIZE);
   console.log(this.terrain[0]);
-  this.water = new Uint8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE);
+  this.water = new Int8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE);
   console.log(this.water[0]);
 }
 

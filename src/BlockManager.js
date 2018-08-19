@@ -12,7 +12,7 @@ function BlockManager() {
 
 BlockManager.prototype.get = function(coord) {
   if (this.blocks[coord] === undefined) this.blocks[coord] = new Block(coord);
-  // If the (block doesn't exist or is older than 5 seconds) and isn't already being fetched
+  // If the (block doesn't exist or is older than 1 second) and isn't already being fetched
   if ((new Date()) - (this.ages[coord] || 0) > 1000 && !(coord in this.fetching)) {
     this.fetching[coord] = true;
     fetch(coord)
