@@ -1,13 +1,21 @@
 language: nix
 
 deploy:
-  provider: pages
-  local-dir: result/share/doc
-  skip-cleanup: true
-  github-token: "$GITHUB_TOKEN"
-  keep-history: true
-  on:
-    branch: master
+  - provider: pages
+    local-dir: result/share/doc
+    skip-cleanup: true
+    github-token: "$GITHUB_TOKEN"
+    keep-history: true
+    on:
+      branch: master
+  - provider: pages
+    local-dir: result/release
+    target-branch: heroku
+    skip-cleanup: true
+    github-token: "$GITHUB_TOKEN"
+    keep-history: true
+    on:
+      branch: master
 
 env:
   global:
