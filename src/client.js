@@ -2,7 +2,7 @@ import { scale_over_range } from './shared.js';
 import BlockManager from './BlockManager.js';
 import Block from './Block.js';
 import GridItem from './GridItem.js';
-import draw from './draw.js'
+import draw from './draw.js';
 
 export default (function (DEBUG) {
   /* global io */

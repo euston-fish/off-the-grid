@@ -11,8 +11,8 @@
 function SimplexNoise(r) {
   if (r == undefined) r = Math;
   this.grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0], 
-                                 [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1], 
-                                 [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]]; 
+    [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1], 
+    [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]]; 
   this.p = [];
   for (var i=0; i<256; i++) {
     this.p[i] = Math.floor(r.random()*256);
@@ -34,7 +34,7 @@ function SimplexNoise(r) {
     [0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0], 
     [2,0,1,3],[0,0,0,0],[0,0,0,0],[0,0,0,0],[3,0,1,2],[3,0,2,1],[0,0,0,0],[3,1,2,0], 
     [2,1,0,3],[0,0,0,0],[0,0,0,0],[0,0,0,0],[3,1,0,2],[0,0,0,0],[3,2,0,1],[3,2,1,0]]; 
-};
+}
 
 SimplexNoise.prototype.dot = function(g, x, y) { 
   return g[0]*x + g[1]*y;
@@ -118,10 +118,10 @@ SimplexNoise.prototype.noise3d = function(xin, yin, zin) {
   var i2, j2, k2; // Offsets for third corner of simplex in (i,j,k) coords 
   if(x0>=y0) { 
     if(y0>=z0) 
-      { i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; } // X Y Z order 
-      else if(x0>=z0) { i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; } // X Z Y order 
-      else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; } // Z X Y order 
-    } 
+    { i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; } // X Y Z order 
+    else if(x0>=z0) { i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; } // X Z Y order 
+    else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; } // Z X Y order 
+  } 
   else { // x0<y0 
     if(y0<z0) { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; } // Z Y X order 
     else if(x0<z0) { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; } // Y Z X order 

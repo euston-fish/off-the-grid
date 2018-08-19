@@ -1,18 +1,14 @@
 import { SIZE, normal, min, max, sum, move_towards, randRound } from './shared.js';
-import makeTerrain from './generate.js';
+import { makeTerrain, makeWater } from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import SimplexNoise from './noise.js';
 
 export default function() {
   console.log('creating terrain');
-
   let terrain = makeTerrain();
-
   console.log('creating water');
-  let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  // water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
-
+  let water = makeWater();
   console.log('creating blocks');
   let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
   blocks.updateAll((_, [c, r]) => new Block([c, r], {
@@ -45,7 +41,7 @@ export default function() {
     });
     console.log(`flowCount:    ${flowCount}`);
     console.log(`erosionCount: ${erosionCount}`);
-    setTimeout(tick, 2000);
+    // setTimeout(tick, 2000);
   };
 
   tick();

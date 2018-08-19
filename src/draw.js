@@ -1,4 +1,4 @@
-import { W, pixelToWorld, worldToPixel } from './shared.js'
+import { W, pixelToWorld, worldToPixel } from './shared.js';
 import { scale_over_range } from './shared.js';
 import BlockManager from './BlockManager.js';
 import Block from './Block.js';
@@ -65,6 +65,6 @@ const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
   if (DEBUG) {
     ctx.fillText([cs, rs].toString(), 5, 5);
   }
-}
+};
 
 export default draw;
