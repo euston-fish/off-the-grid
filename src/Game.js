@@ -10,7 +10,7 @@ function Game() {
   this.game = new WebAssembly.Instance(module, { 'env': { 'random': Math.random } });
   this.game.exports['init']();
   let memory = this.game.exports['memory'];
-  this.address = this.game['exports']['address']();
+  this.address = this.game.exports['address']();
   console.log('address: ' + this.address);
   this.terrain = new Uint8Array(memory.buffer, this.address, SIZE * SIZE);
   console.log(this.terrain[0]);
@@ -19,9 +19,7 @@ function Game() {
 }
 
 Game.prototype.tick = function() {
-  this.game.then((result) => {
-    result['instance'].exports['tick']();
-  });
+  this.game.exports['tick']();
 };
 
 Game.prototype.getWater = function(x, y) {

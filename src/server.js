@@ -105,6 +105,14 @@ export default function() {
   };
 
   tick();*/
+  let tick = () => {
+    let start = new Date();
+    game.tick();
+    let end = new Date();
+    console.log('tick time: ' + (end - start));
+    setTimeout(tick, 5000);
+  };
+  tick();
 
   return {
     'io': (socket) => {
