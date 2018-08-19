@@ -5,7 +5,6 @@ extern { fn random() -> f64; }
 const SIZE: usize = 1024;
 const INITIAL_WATER_LEVEL: u8 = 64;
 
-#[repr(C)]
 struct Game {
   terrain: [u8; SIZE * SIZE],
   water: [u8; SIZE * SIZE]

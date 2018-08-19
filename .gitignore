@@ -2,5 +2,6 @@ debug/
 release/
 doc/
 tmp/
+result
 js13kserver.zip
 node_modules/*

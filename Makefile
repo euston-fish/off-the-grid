@@ -16,7 +16,11 @@ SOURCES=src/Array.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html
 
-.PHONY: debug_run release_run clean squeaky lint fix
+.PHONY: all debug_run release_run clean squeaky lint fix install
+
+all: release doc
+
+install:
 
 tmp/wasm.js: tmp/game.wasm | tmp
 	echo -n "export const gameSource = Uint8Array.from('" > $@
