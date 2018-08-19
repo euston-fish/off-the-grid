@@ -55,3 +55,6 @@ Array.prototype.swizzle = function(indices) {
   return indices.map(index => this[index]);
 };
 
+Array.prototype.chunk = function(n) {
+  return Array(Math.ceil(this.length / n)).fill().map((_, i) => this.slice(i*n, i*n+n))
+}

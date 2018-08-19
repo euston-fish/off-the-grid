@@ -1,11 +1,29 @@
 import { normal, min, max, sum, move_towards, randRound } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
+import Game from './Game.js';
 
 export default function() {
-  const SIZE = 128;
-  console.log('creating terrain');
-  let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
+  let game = new Game();
+  //game.address();
+
+  let water = new Lens(
+    ([x, y]) => game.getWater(x, y),
+    () => undefined,
+    [1024, 1024]
+  )
+
+  let terrain = new Lens(
+    ([x, y]) => game.getTerrain(x, y),
+    () => undefined,
+    [1024, 1024]
+  )
+
+  let SIZE = 1024;
+
+  //const SIZE = 128;
+  //console.log('creating terrain');
+  /*let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   terrain.updateAll(() => {
     return Math.floor(Math.random() * 255);
   });
@@ -50,6 +68,7 @@ export default function() {
   console.log('creating water');
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
+  */
 
   console.log('creating blocks');
   let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
@@ -62,7 +81,7 @@ export default function() {
   let flowCount = 0;
   let erosionCount = 0;
 
-  let tick = () => {
+  /*let tick = () => {
     water.keys().forEach(a => {
       for (let b of [[0, 1], [1, 0]].map(d => d.add(a))) {
         let depths = [a, b].map(c => water.get(c));
@@ -86,7 +105,7 @@ export default function() {
     setTimeout(tick, 2000);
   };
 
-  tick();
+  tick();*/
 
   return {
     'io': (socket) => {
