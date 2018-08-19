@@ -1,4 +1,3 @@
-import { normal, min, max, sum, move_towards, randRound } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import Game from './Game.js';
@@ -11,13 +10,13 @@ export default function() {
     ([x, y]) => game.getWater(x, y),
     () => undefined,
     [1024, 1024]
-  )
+  );
 
   let terrain = new Lens(
     ([x, y]) => game.getTerrain(x, y),
     () => undefined,
     [1024, 1024]
-  )
+  );
 
   let SIZE = 1024;
 
@@ -78,8 +77,8 @@ export default function() {
   }));
   console.log('done');
 
-  let flowCount = 0;
-  let erosionCount = 0;
+  //let flowCount = 0;
+  //let erosionCount = 0;
 
   /*let tick = () => {
     water.keys().forEach(a => {

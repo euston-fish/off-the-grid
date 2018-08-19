@@ -1,4 +1,4 @@
-import { gameSource, load } from '../tmp/wasm.js'
+import { gameSource } from '../tmp/wasm.js';
 
 let SIZE = 1024;
 
@@ -26,10 +26,10 @@ Game.prototype.tick = function() {
 
 Game.prototype.getWater = function(x, y) {
   return this.water[x * SIZE + y];
-}
+};
 
 Game.prototype.getTerrain = function(x, y) {
   return this.terrain[x * SIZE + y];
-}
+};
 
-export default Game
+export default Game;

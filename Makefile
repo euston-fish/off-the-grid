@@ -18,7 +18,7 @@ OUTPUTS=shared.js server.js index.html
 
 .PHONY: all debug_run release_run clean squeaky lint fix install
 
-all: release doc
+all: lint release doc
 
 install:
 

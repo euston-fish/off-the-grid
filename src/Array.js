@@ -56,5 +56,5 @@ Array.prototype.swizzle = function(indices) {
 };
 
 Array.prototype.chunk = function(n) {
-  return Array(Math.ceil(this.length / n)).fill().map((_, i) => this.slice(i*n, i*n+n))
-}
+  return Array(Math.ceil(this.length / n)).fill().map((_, i) => this.slice(i*n, i*n+n));
+};
