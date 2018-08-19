@@ -7,19 +7,8 @@ export default function() {
   let game = new Game();
 
   const SIZE = 1024;
-  let water = game.water;
-  //new Lens(
-    //([x, y]) => game.getWater(x, y)+128,
-    //([x, y], v) => game.setWater(x, y, v-128),
-    //[1024, 1024]
-  //);
-
   let terrain = game.terrain;
-  //new Lens(
-    //([x, y]) => game.getTerrain(x, y)+128,
-    //([x, y], v) => game.setTerrain(x, y, v-128),
-    //[1024, 1024]
-  //);
+  let water = game.water;
 
   console.log('creating terrain')
   terrain.updateAll(() => {

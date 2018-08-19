@@ -90,7 +90,7 @@ export default (function (DEBUG) {
         viewport_offset = viewport_offset.sub(delta);
         prev_mouse_location = [event.x, event.y];
         window.requestAnimationFrame(draw);
-        viewport_offset.map(c => Math.max(c, 0));
+        viewport_offset = viewport_offset.map(c => Math.max(c, 0));
       }
     });
     let draw = () => {
@@ -125,7 +125,7 @@ export default (function (DEBUG) {
       objects.forEach(([[c, r], object]) => {
         ctx.save();
         let [px, py] = worldToPixel([c, r]);
-        ctx.translate(-px, -py);
+        ctx.translate(px, py);
         object.draw(ctx);
         ctx.restore();
       });
