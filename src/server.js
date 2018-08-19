@@ -1,14 +1,15 @@
 import { normal, min, max, sum, move_towards, randRound } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
+import SimplexNoise from './noise.js';
 
 export default function() {
   const SIZE = 128;
   console.log('creating terrain');
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  terrain.updateAll(() => {
-    return Math.floor(Math.random() * 255);
-  });
+  // terrain.updateAll(() => {
+  //   return Math.floor(Math.random() * 255);
+  // });
   let get_around = ([x, y]) => [
     terrain.get([x, y - 1]) || 128,
     terrain.get([x + 1, y - 1]) || 128,
@@ -19,8 +20,12 @@ export default function() {
     terrain.get([x - 1, y]) || 128,
     terrain.get([x - 1, y - 1]) || 128,
   ];
+  let simp = new SimplexNoise();
+  terrain.updateAll((value, [x, y]) => {
+    return Math.floor(simp.noise(x, y) * 255);
+  });
   let low_point = 0, high_point = 0, mid_point = 0;
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 3; i++) {
     low_point = 255, high_point = 0, mid_point = 0;
     terrain.updateAll((value, [x, y]) => {
       let around = get_around([x, y]);
@@ -42,6 +47,7 @@ export default function() {
   }
   mid_point /= SIZE * SIZE;
   let range = high_point - low_point;
+  console.log(mid_point, high_point, low_point)
   terrain.updateAll((value, [x, y]) => {
     return Math.floor(255 * ((value - low_point) / range));
   });
@@ -49,7 +55,7 @@ export default function() {
 
   console.log('creating water');
   let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
+  // water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
 
   console.log('creating blocks');
   let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
