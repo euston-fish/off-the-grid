@@ -1,28 +1,27 @@
+import { min, max, move_towards, sum, normal } from './shared.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import Game from './Game.js';
 
 export default function() {
   let game = new Game();
-  //game.address();
 
-  let water = new Lens(
-    ([x, y]) => game.getWater(x, y)+128,
-    () => undefined,
-    [1024, 1024]
-  );
+  const SIZE = 1024;
+  let water = game.water;
+  //new Lens(
+    //([x, y]) => game.getWater(x, y)+128,
+    //([x, y], v) => game.setWater(x, y, v-128),
+    //[1024, 1024]
+  //);
 
-  let terrain = new Lens(
-    ([x, y]) => game.getTerrain(x, y)+128,
-    () => undefined,
-    [1024, 1024]
-  );
+  let terrain = game.terrain;
+  //new Lens(
+    //([x, y]) => game.getTerrain(x, y)+128,
+    //([x, y], v) => game.setTerrain(x, y, v-128),
+    //[1024, 1024]
+  //);
 
-  let SIZE = 1024;
-
-  //const SIZE = 128;
-  //console.log('creating terrain');
-  /*let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
+  console.log('creating terrain')
   terrain.updateAll(() => {
     return Math.floor(Math.random() * 255);
   });
@@ -38,6 +37,7 @@ export default function() {
   ];
   let low_point = 0, high_point = 0, mid_point = 0;
   for (let i = 0; i < 10; i++) {
+    console.log('iteration ' + i);
     low_point = 255, high_point = 0, mid_point = 0;
     terrain.updateAll((value, [x, y]) => {
       let around = get_around([x, y]);
@@ -63,14 +63,11 @@ export default function() {
     return Math.floor(255 * ((value - low_point) / range));
   });
 
-
   console.log('creating water');
-  let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-  water.updateAll(() => Math.floor(normal(Math.random(), Math.random()) * 50));
-  */
-
+  water.updateAll(() => Math.max(Math.floor(normal(Math.random(), Math.random()) * 20 + 70), 0));
+  
   console.log('creating blocks');
-  let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
+  let blocks = new Lens(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
   blocks.updateAll((_, [c, r]) => new Block([c, r], {
     terrain: terrain.window([c * 16, r * 16], [16, 16]),
     water: water.window([c * 16, r * 16], [16, 16])

@@ -1,4 +1,5 @@
 import { gameSource } from '../tmp/wasm.js';
+import Lens from './Lens.js';
 
 let SIZE = 1024;
 
@@ -12,10 +13,8 @@ function Game() {
   let memory = this.game.exports['memory'];
   this.address = this.game.exports['address']();
   console.log('address: ' + this.address);
-  this.terrain = new Int8Array(memory.buffer, this.address, SIZE * SIZE);
-  console.log(this.terrain[0]);
-  this.water = new Int8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE);
-  console.log(this.water[0]);
+  this.terrain = new Lens(new Uint8Array(memory.buffer, this.address, SIZE * SIZE), [SIZE, SIZE]);
+  this.water = new Lens(new Uint8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE), [SIZE, SIZE]);
 }
 
 Game.prototype.tick = function() {
@@ -26,8 +25,16 @@ Game.prototype.getWater = function(x, y) {
   return this.water[x * SIZE + y];
 };
 
+Game.prototype.setWater = function(x, y, v) {
+  this.water[x * SIZE + y] = v;
+}
+
 Game.prototype.getTerrain = function(x, y) {
   return this.terrain[x * SIZE + y];
 };
+
+Game.prototype.setTerrain = function(x, y, v) {
+  this.terrain[x * SIZE + y] = v;
+}
 
 export default Game;
