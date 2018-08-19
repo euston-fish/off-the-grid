@@ -1,8 +1,8 @@
 import { W, pixelToWorld, worldToPixel } from './shared.js';
 import { scale_over_range } from './shared.js';
-import BlockManager from './BlockManager.js';
 import Block from './Block.js';
-import GridItem from './GridItem.js';
+
+/* global DEBUG */
 
 let env_to_color = (height, water_height) => {
   if (water_height > height) {
@@ -24,7 +24,6 @@ let env_to_color = (height, water_height) => {
   height = height / 110;
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
-
 
 const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -58,7 +57,7 @@ const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
   objects.forEach(([[c, r], object]) => {
     ctx.save();
     let [px, py] = worldToPixel(viewport_offset, [c, r]);
-    ctx.translate(-px, -py);
+    ctx.translate(px, py);
     object.draw(ctx);
     ctx.restore();
   });

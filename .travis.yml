@@ -1,19 +1,8 @@
-language: node_js
-
-node_js:
-- node
-
-install:
-- npm install google-closure-compiler eslint jsdoc
-- export PATH=$PATH:$(pwd)/node_modules/.bin
-
-script:
-- make lint
-- make doc
+language: nix
 
 deploy:
   provider: pages
-  local-dir: doc
+  local-dir: result/share/doc
   skip-cleanup: true
   github-token: "$GITHUB_TOKEN"
   keep-history: true

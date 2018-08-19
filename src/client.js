@@ -1,6 +1,4 @@
-import { scale_over_range } from './shared.js';
 import BlockManager from './BlockManager.js';
-import Block from './Block.js';
 import GridItem from './GridItem.js';
 import draw from './draw.js';
 
@@ -73,7 +71,7 @@ export default (function (DEBUG) {
         viewport_offset = viewport_offset.sub(delta);
         prev_mouse_location = [event.x, event.y];
         window.requestAnimationFrame(repaint);
-        viewport_offset.map(c => Math.max(c, 0));
+        viewport_offset = viewport_offset.map(c => Math.max(c, 0));
       }
     });
 

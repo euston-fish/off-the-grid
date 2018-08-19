@@ -25,7 +25,7 @@ const renderers = {
     ctx.fillStyle = '#CADDE3bb';
     ctx.fillRect(...coords);
   },
-  'rain': (ctx, item) => {
+  'rain': (ctx) => {
     ctx.fillStyle = '#77AEEDbb';
     ctx.fillRect(12, 12, 10, 10);
   },

@@ -1,49 +1,34 @@
-import { SIZE, normal, min, max, sum, move_towards, randRound } from './shared.js';
-import { makeTerrain, makeWater } from './generate.js';
+import { SIZE } from './shared.js';
+import { fillTerrain, fillWater } from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
-import SimplexNoise from './noise.js';
+import Game from './Game.js';
 
 export default function() {
+  let game = new Game();
+
+  let terrain = game.terrain;
+  let water = game.water;
   console.log('creating terrain');
-  let terrain = makeTerrain();
+  fillTerrain(terrain);
   console.log('creating water');
-  let water = makeWater();
+  fillWater(water);
+
   console.log('creating blocks');
-  let blocks = Lens.arrayAccess(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
+  let blocks = new Lens(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
   blocks.updateAll((_, [c, r]) => new Block([c, r], {
     terrain: terrain.window([c * 16, r * 16], [16, 16]),
     water: water.window([c * 16, r * 16], [16, 16])
   }));
   console.log('done');
 
-  let flowCount = 0;
-  let erosionCount = 0;
-
   let tick = () => {
-    water.keys().forEach(a => {
-      for (let b of [[0, 1], [1, 0]].map(d => d.add(a))) {
-        let depths = [a, b].map(c => water.get(c));
-        let terrains = [a, b].map(c => terrain.get(c));
-        let saturated = Array.zip(depths, terrains).map(([depth, terrain]) => depth > terrain);
-        let flowRate = saturated.map(s => s ? 0.4 : 0.01).product();
-        let flowAmount = (depths[0] - depths[1]) * flowRate;
-        let erosionFlowAmount = (saturated[0] && saturated[1]) ? (flowAmount * 0.0004) : 0;
-        flowAmount = randRound(flowAmount);
-        erosionFlowAmount = randRound(erosionFlowAmount);
-        flowCount += Math.abs(flowAmount);
-        erosionCount += Math.abs(erosionFlowAmount);
-        water.set(a, depths[0] - flowAmount);
-        water.set(b, depths[1] + flowAmount);
-        terrain.set(a, terrains[0] - erosionFlowAmount);
-        terrain.set(b, terrains[1] + erosionFlowAmount);
-      }
-    });
-    console.log(`flowCount:    ${flowCount}`);
-    console.log(`erosionCount: ${erosionCount}`);
-    // setTimeout(tick, 2000);
+    let start = new Date();
+    game.tick();
+    let end = new Date();
+    console.log('tick time: ' + (end - start));
+    setTimeout(tick, 1000);
   };
-
   tick();
 
   return {

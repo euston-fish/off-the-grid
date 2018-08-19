@@ -1,3 +1,5 @@
+import { add, sub } from './shared.js';
+
 /**
  * Provides access to a 2D region.
  * @constructor
@@ -5,25 +7,12 @@
  * @param {Lens~setter} setter
  * @param {Lens~coordinate} size - The size of the region.
  */
-function Lens(getter, setter, size) {
-  this.getter = getter;
-  this.setter = setter;
-  this.size = size;
+function Lens(source, sourceSize, offset, size) {
+  this.source = source;
+  this.sourceSize = sourceSize;
+  this.offset = offset || [0, 0];
+  this.size = size || sub(sourceSize, this.offset);
 }
-
-/**
- * Gets the value at a coordinate within the Lens.
- * @callback Lens~getter
- * @param {Lens~coordinate} coordinate - The coordinate to get. Guaranteed to be between [0, 0] and size.
- * @returns The value found at that coordinate
- */
-
-/**
- * Sets the value at a coordinate within the Lens.
- * @callback Lens~setter
- * @param {Lens~coordinate} coordinate - The coordinate to set. Guaranteed to be between [0, 0] and size.
- * @param value - The value to set at that coordinate
- */
 
 /**
  * Updates a value in a Lens.
@@ -38,29 +27,20 @@ function Lens(getter, setter, size) {
  * @typedef {Array.<number>} Lens~coordinate
  */
 
-/**
- * @function
- * @param {Array|TypedArray} data - The array to access.
- * @param {Lens~coordinate} size - The size to interpret.
- * @returns {Lens} A new Lens object.
- */
-Lens.arrayAccess = function(data, size) {
-  let coordToIndex = ([c, r]) => c * size[1] + r;
-  return new Lens(
-    (coord) => data[coordToIndex(coord)],
-    (coord, val) => data[coordToIndex(coord)] = val,
-    size
-  );
-};
 
 // TODO: decide whether/how to bother checking bounds
 /**
  * @function
  * @returns {Array.<Lens~coordinate>} An array of all the keys into the Lens.
  */
-Lens.prototype.keys = function() {
-  // TODO: maybe make this an iterator
-  return Array.cross(...this.size.map(s => Array(s).fill().iota()));
+Lens.prototype.keys = function*() {
+  for (let c = 0; c < this.size[0]; c++)
+    for (let r = 0; r < this.size[1]; r++)
+      yield [c, r];
+};
+
+let coordinateToIndex = function([c, r], [, h]) {
+  return c * h + r;
 };
 
 /**
@@ -70,7 +50,8 @@ Lens.prototype.keys = function() {
  * @returns The value found at that coordinate
  */
 Lens.prototype.get = function(coordinate) {
-  return this.getter(Array.zip(coordinate, this.size).map(([x, s]) => x.mod(s)));
+  if (coordinate[0] < 0 || coordinate[0] > this.size[0] || coordinate[1] < 0 || coordinate[1] > this.size[1]) return undefined;
+  return this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)];
 };
 
 /**
@@ -80,7 +61,8 @@ Lens.prototype.get = function(coordinate) {
  * @param value - The value to set at that coordinate
  */
 Lens.prototype.set = function(coordinate, value) {
-  return this.setter(Array.zip(coordinate, this.size).map(([x, s]) => x.mod(s)), value);
+  if (coordinate[0] < 0 || coordinate[0] > this.size[0] || coordinate[1] < 0 || coordinate[1] > this.size[1]) return;
+  this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)] = value;
 };
 
 /**
@@ -93,11 +75,12 @@ Lens.prototype.update = function(coordinate, callback) {
 };
 
 /**
+ * Note: no good if you're looking at a window
  * @function
  * @param {Lens~update} callback - The callback used to update values.
  */
 Lens.prototype.updateAll = function(callback) {
-  this.keys().forEach(coordinate => this.update(coordinate, callback));
+  for (let key of this.keys()) this.update(key, callback);
 };
 
 /**
@@ -105,12 +88,8 @@ Lens.prototype.updateAll = function(callback) {
  * @param {Lens~coordinate} offset - The offset to shift by.
  * @returns {Lens} A new Lens object, referring to the area from offset to [N, N] in the original.
  */
-Lens.prototype.offset = function(offset) {
-  return new Lens(
-    (coords) => this.get(coords.add(offset)),
-    (coords, val) => this.set(coords.add(offset), val),
-    this.size.sub(offset)
-  );
+Lens.prototype.shift = function(offset) {
+  return new Lens(this.source, this.sourceSize, add(this.offset, offset), sub(this.size, offset));
 };
 
 /**
@@ -119,11 +98,7 @@ Lens.prototype.offset = function(offset) {
  * @returns {Lens} A new Lens object, referring to the area from [0, 0] to size in the original.
  */
 Lens.prototype.shrink = function(size) {
-  return new Lens(
-    (coords) => this.get(coords),
-    (coords) => this.set(coords),
-    size
-  );
+  return new Lens(this.source, this.sourceSize, this.offset, size);
 };
 
 /**
@@ -133,7 +108,7 @@ Lens.prototype.shrink = function(size) {
  * @returns {Lens} A new Lens object, referring to the area from origin to size in the original.
  */
 Lens.prototype.window = function(origin, size) {
-  return this.offset(origin).shrink(size);
+  return this.shift(origin).shrink(size);
 };
 
 /**
@@ -141,7 +116,7 @@ Lens.prototype.window = function(origin, size) {
  * @returns {Array} The contents of the Lens in a format for JSON transmission.
  */
 Lens.prototype.toJSON = function() {
-  return this.keys().map(key => this.get(key));
+  return Array.from(this.keys()).map(key => this.get(key));
 };
 
 /**
@@ -149,7 +124,8 @@ Lens.prototype.toJSON = function() {
  * @param {Array} json - The (already deserialised) object to convert back from.
  */
 Lens.prototype.fromJSON = function(json) {
-  this.keys().zip(json).forEach(([key, val]) => this.set(key, val));
+  // TODO: optimise
+  Array.from(this.keys()).zip(json).forEach(([key, val]) => this.set(key, val));
 };
 
 export default Lens;

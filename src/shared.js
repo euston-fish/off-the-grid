@@ -19,7 +19,7 @@ export const worldToPixel = (viewport_offset, world) => world.scale(W).sub(viewp
 // take a pixel coordinate, and give which world coordinate it's within
 export const pixelToWorld = (viewport_offset, pixel) => pixel.add(viewport_offset).scale(1 / W).map(Math.floor);
 export const W = 32;
-export const SIZE = 128;
+export const SIZE = 1024;
 
 
 /*

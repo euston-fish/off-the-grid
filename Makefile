@@ -7,6 +7,8 @@ SOURCES=src/Array.js \
         src/Lens.js \
         src/Block.js \
         src/BlockManager.js \
+        tmp/wasm.js \
+        src/Game.js \
         src/shared.js \
         src/server.js \
         src/client.js \
@@ -17,7 +19,33 @@ SOURCES=src/Array.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html
 
-.PHONY: debug_run release_run clean squeaky lint fix
+.PHONY: all debug_run release_run clean squeaky lint fix install
+
+all: lint release doc
+
+install:
+
+tmp/wasm.js: tmp/game.wasm | tmp
+	echo -n "export const gameSource = Uint8Array.from('" > $@
+	cat $< | od -A n -t x1 | tr -d ' ' | tr -d '\n' >> $@
+	echo "'.split('').chunk(2).map(([a, b]) => parseInt(a+b, 16)));" >> $@
+      
+
+tmp/game.wasm: tmp/game_rustc.wasm | tmp
+	wasm-opt $< -Oz -o $@
+
+tmp/game_rustc.wasm: src/game.rs | tmp
+	rustc \
+	  --crate-type=cdylib \
+	  --target=wasm32-unknown-unknown \
+	  --codegen lto \
+	  --codegen debuginfo=0 \
+	  --codegen opt-level='z' \
+	  --codegen panic=abort \
+	  $< -o $@
+
+tmp:
+	mkdir tmp
 	
 debug: $(addprefix debug/public/,$(OUTPUTS)) | debug/js13kserver
 
@@ -54,7 +82,7 @@ js13kserver.zip:
 	curl -L https://github.com/js13kgames/js13kserver/archive/master.zip -o $@
 
 clean:
-	rm -rf debug/public release/public doc
+	rm -rf debug/public release/public doc tmp
 
 squeaky: clean
 	rm -rf debug release js13kserver.zip
