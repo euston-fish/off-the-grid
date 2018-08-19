@@ -14,6 +14,13 @@ export const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 export const min = (arr) => arr.reduce((a, b) => a < b ? a : b);
 export const max = (arr) => arr.reduce((a, b) => a > b ? a : b);
 export const randRound = (val) => Math.floor(val) + (Math.random() < val - Math.floor(val));
+// take a world coordinate, and give the pixel of its upper-left corner
+export const worldToPixel = (viewport_offset, world) => world.scale(W).sub(viewport_offset);
+// take a pixel coordinate, and give which world coordinate it's within
+export const pixelToWorld = (viewport_offset, pixel) => pixel.add(viewport_offset).scale(1 / W).map(Math.floor);
+export const W = 32;
+export const SIZE = 1024;
+
 
 /*
 let isIterable = (x) => x != null && typeof x[Symbol.iterator] === 'function';

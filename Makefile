@@ -13,6 +13,9 @@ SOURCES=src/Array.js \
         src/server.js \
         src/client.js \
         src/GridItem.js \
+        src/noise.js \
+        src/generate.js \
+        src/draw.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html
 
@@ -50,7 +53,7 @@ debug_run: debug
 	cd debug; npm run start
 
 debug/public/shared.js: $(SOURCES) externs.js
-	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) $(SOURCES) <(echo "const DEBUG=true") --js_output_file $@
+	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) <(echo "const DEBUG=true") $(SOURCES) --js_output_file $@
 	echo "//# sourceMappingURL=shared.js.map" >> $@
 
 %/public/server.js:
@@ -65,7 +68,7 @@ release_run: release
 	cd release; npm run start
 
 release/public/shared.js: $(SOURCES) externs.js
-	$(GCC) $(GCCFLAGS) $(SOURCES) <(echo "const DEBUG=false") --js_output_file $@
+	$(GCC) $(GCCFLAGS) <(echo "const DEBUG=false") $(SOURCES) --js_output_file $@
 
 %/js13kserver: js13kserver.zip
 	unzip $^ -x js13kserver-master/public/*
@@ -92,3 +95,7 @@ fix:
 
 doc: $(SOURCES)
 	jsdoc -d doc $(SOURCES)
+
+draw: $(SOURCES) src/draw_image.js
+	$(GCC) $(GCCFLAGS) <(echo "const DEBUG=false") src/draw_image.js $(SOURCES) --entry_point=src/draw_image --js_output_file debug/draw.js
+	node debug/draw.js

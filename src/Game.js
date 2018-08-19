@@ -21,20 +21,4 @@ Game.prototype.tick = function() {
   this.game.exports['tick']();
 };
 
-Game.prototype.getWater = function(x, y) {
-  return this.water[x * SIZE + y];
-};
-
-Game.prototype.setWater = function(x, y, v) {
-  this.water[x * SIZE + y] = v;
-}
-
-Game.prototype.getTerrain = function(x, y) {
-  return this.terrain[x * SIZE + y];
-};
-
-Game.prototype.setTerrain = function(x, y, v) {
-  this.terrain[x * SIZE + y] = v;
-}
-
 export default Game;

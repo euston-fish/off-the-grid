@@ -39,7 +39,7 @@ Lens.prototype.keys = function*() {
       yield [c, r];
 };
 
-let coordinateToIndex = function([c, r], [_, h]) {
+let coordinateToIndex = function([c, r], [, h]) {
   return c * h + r;
 };
 
@@ -51,7 +51,7 @@ let coordinateToIndex = function([c, r], [_, h]) {
  */
 Lens.prototype.get = function(coordinate) {
   if (coordinate[0] < 0 || coordinate[0] > this.size[0] || coordinate[1] < 0 || coordinate[1] > this.size[1]) return undefined;
-  return this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)]
+  return this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)];
 };
 
 /**
@@ -62,7 +62,7 @@ Lens.prototype.get = function(coordinate) {
  */
 Lens.prototype.set = function(coordinate, value) {
   if (coordinate[0] < 0 || coordinate[0] > this.size[0] || coordinate[1] < 0 || coordinate[1] > this.size[1]) return;
-  this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)] = value
+  this.source[coordinateToIndex(add(coordinate, this.offset), this.sourceSize)] = value;
 };
 
 /**
