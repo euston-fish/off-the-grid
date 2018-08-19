@@ -1,9 +1,9 @@
 import { SIZE, normal, min, max, sum, move_towards, randRound } from './shared.js';
-import makeTerrain from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import SimplexNoise from './noise.js';
-export const makeTerrain = () => {
+
+export default () => {
   let terrain = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
   // terrain.updateAll(() => {
   //   return Math.floor(Math.random() * 255);
@@ -49,5 +49,6 @@ export const makeTerrain = () => {
   terrain.updateAll((value, [x, y]) => {
     return Math.floor(255 * ((value - low_point) / range));
   });
+  return terrain;
 };
 

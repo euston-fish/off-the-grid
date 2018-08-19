@@ -1,4 +1,4 @@
-import SIZE from './shared.js'
+import { SIZE } from './shared.js'
 import makeTerrain from './generate.js'
 import draw from './draw.js'
 import Block from './Block.js'
@@ -17,11 +17,18 @@ MockBlox.prototype.get = function(coord) {
   return this.blocks.get(coord);
 }
 
-var PImage = require('pureimage');
-let terrain = makeTerrain();
-let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
-let manager = MockBlox(terrain, water);
+export default () => {
+  const can = require('canvas')
+  const canvas = can.createCanvas(200, 200);
+  const ctx = canvas.getContext('2d');
+  let terrain = makeTerrain();
+  let water = Lens.arrayAccess(new Uint8Array(SIZE * SIZE), [SIZE, SIZE]);
+  let manager = new MockBlox(terrain, water);
 
-var canvas = PImage.make(100,100);
-var ctx = canvas.getContext('2d');
-draw(ctx, canvas, [0,0], [], manager);
+  draw(ctx, canvas, [0,0], [], manager);
+  const fs = require('fs');
+  const out = fs.createWriteStream('test.png')
+  const stream = canvas.createPNGStream()
+  stream.pipe(out)
+  out.on('finish', () => console.log('The PNG file was created.'))
+}

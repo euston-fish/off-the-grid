@@ -1,6 +1,6 @@
 SHELL=/usr/bin/env bash
 GCC=google-closure-compiler
-GCCFLAGS=--compilation_level WHITESPACE_ONLY --externs externs.js --language_out ECMASCRIPT_2015
+GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
 SOURCES=src/Array.js \
         src/Number.js \
@@ -25,7 +25,7 @@ debug_run: debug
 	cd debug; npm run start
 
 debug/public/shared.js: $(SOURCES) externs.js
-	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) $(SOURCES) <(echo "const DEBUG=true") --js_output_file $@
+	$(GCC) $(GCCFLAGS) $(GCCFLAGS_DEBUG) <(echo "const DEBUG=true") $(SOURCES) --js_output_file $@
 	echo "//# sourceMappingURL=shared.js.map" >> $@
 
 %/public/server.js:
@@ -40,7 +40,7 @@ release_run: release
 	cd release; npm run start
 
 release/public/shared.js: $(SOURCES) externs.js
-	$(GCC) $(GCCFLAGS) $(SOURCES) <(echo "const DEBUG=false") --js_output_file $@
+	$(GCC) $(GCCFLAGS) <(echo "const DEBUG=false") $(SOURCES) --js_output_file $@
 
 %/js13kserver: js13kserver.zip
 	unzip $^ -x js13kserver-master/public/*
@@ -69,5 +69,5 @@ doc: $(SOURCES)
 	jsdoc -d doc $(SOURCES)
 
 draw: $(SOURCES) src/draw_image.js
-	$(GCC) $(GCCFLAGS) $(SOURCES) src/draw_image.js <(echo "const DEBUG=false")  --js_output_file debug/draw.js
+	$(GCC) $(GCCFLAGS) <(echo "const DEBUG=false") src/draw_image.js $(SOURCES) --entry_point=src/draw_image --js_output_file debug/draw.js
 	node debug/draw.js
