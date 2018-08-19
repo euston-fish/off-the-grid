@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Block</title>
+    <title>JSDoc: Source: Game.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,131 +17,42 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Block</h1>
+    <h1 class="page-title">Source: Game.js</h1>
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Block<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-
-    
-    <h4 class="name" id="Block"><span class="type-signature"></span>new Block<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Block.js.html">Block.js</a>, <a href="Block.js.html#line8">line 8</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { gameSource } from '../tmp/wasm.js';
+import Lens from './Lens.js';
+
+let SIZE = 1024;
+
+/**
+ * @constructor
+ */
+function Game() {
+  let module = new WebAssembly.Module(gameSource);
+  this.game = new WebAssembly.Instance(module, { 'env': { 'random': Math.random, 'log': (x) => console.log('from rust with love: ' + x)  } });
+  this.game.exports['init']();
+  let memory = this.game.exports['memory'];
+  this.address = this.game.exports['address']();
+  console.log('address: ' + this.address);
+  this.terrain = new Lens(new Uint8Array(memory.buffer, this.address, SIZE * SIZE), [SIZE, SIZE]);
+  this.water = new Lens(new Uint8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE), [SIZE, SIZE]);
+}
+
+Game.prototype.tick = function() {
+  this.game.exports['tick']();
+};
+
+export default Game;
+</code></pre>
+        </article>
+    </section>
 
 
 
