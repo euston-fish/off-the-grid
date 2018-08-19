@@ -1,6 +1,6 @@
 SHELL=/usr/bin/env bash
 GCC=google-closure-compiler
-GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --language_out ECMASCRIPT_2015
+GCCFLAGS=--compilation_level WHITESPACE_ONLY --externs externs.js --language_out ECMASCRIPT_2015
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
 SOURCES=src/Array.js \
         src/Number.js \
@@ -12,6 +12,7 @@ SOURCES=src/Array.js \
         src/client.js \
         src/GridItem.js \
         src/noise.js \
+        src/generate.js \
         src/draw.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html
@@ -66,3 +67,7 @@ fix:
 
 doc: $(SOURCES)
 	jsdoc -d doc $(SOURCES)
+
+draw: $(SOURCES) src/draw_image.js
+	$(GCC) $(GCCFLAGS) $(SOURCES) src/draw_image.js <(echo "const DEBUG=false")  --js_output_file debug/draw.js
+	node debug/draw.js
