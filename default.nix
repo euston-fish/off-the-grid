@@ -56,6 +56,7 @@
       closurecompiler
       unzip
       curl
+      jq
       (pkgs.latest.rustChannels.nightly.rust.override {
         targets = [ "wasm32-unknown-unknown" ];
       })

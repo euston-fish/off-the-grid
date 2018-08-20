@@ -1,4 +1,4 @@
-import { SIZE } from './shared.js';
+import { SIZE } from '../tmp/constants.js';
 import { fillTerrain, fillWater } from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';

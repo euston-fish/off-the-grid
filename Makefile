@@ -4,10 +4,11 @@ GCCFLAGS=--compilation_level ADVANCED_OPTIMIZATIONS --externs externs.js --langu
 GCCFLAGS_DEBUG=--create_source_map $@.map --source_map_include_content
 SOURCES=src/Array.js \
         src/Number.js \
+        tmp/constants.js \
         src/Lens.js \
         src/Block.js \
         src/BlockManager.js \
-        tmp/wasm.js \
+        tmp/game.js \
         src/Game.js \
         src/shared.js \
         src/server.js \
@@ -25,16 +26,16 @@ all: lint release doc
 
 install:
 
-tmp/wasm.js: tmp/game.wasm | tmp
-	echo -n "export const gameSource = Uint8Array.from('" > $@
-	cat $< | od -A n -t x1 | tr -d ' ' | tr -d '\n' >> $@
-	echo "'.split('').chunk(2).map(([a, b]) => parseInt(a+b, 16)));" >> $@
-      
+tmp/game.js: src/game.js.sh tmp/game.wasm | tmp
+	bash $< tmp/game.wasm > $@
 
 tmp/game.wasm: tmp/game_rustc.wasm | tmp
 	wasm-opt $< -Oz -o $@
 
-tmp/game_rustc.wasm: src/game.rs | tmp
+tmp/%: src/%.sh src/constants.json | tmp
+	bash $< src/constants.json > $@
+
+tmp/game_rustc.wasm: src/game.rs tmp/constants.rs | tmp
 	rustc \
 	  --crate-type=cdylib \
 	  --target=wasm32-unknown-unknown \
@@ -42,7 +43,7 @@ tmp/game_rustc.wasm: src/game.rs | tmp
 	  --codegen debuginfo=0 \
 	  --codegen opt-level='z' \
 	  --codegen panic=abort \
-	  $< -o $@
+	  <(cat $^) -o $@ # that cat is a gross hack, but I don't know how to Rust better
 
 tmp:
 	mkdir tmp
