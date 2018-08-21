@@ -1,5 +1,8 @@
 language: nix
 
+script:
+  - nix-build --cores 2
+
 deploy:
   - provider: pages
     local-dir: result/share/doc
