@@ -1,4 +1,4 @@
-import { SIZE } from './shared.js';
+import { SIZE } from '../tmp/constants.js'; // TODO: work out how to make this nicer
 import { fillTerrain } from './generate.js';
 import draw from './draw.js';
 import Block from './Block.js';

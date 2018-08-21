@@ -7,9 +7,6 @@ extern {
   fn logf(v: f32);
 }
 
-const SIZE: u32 = 1024;
-const INITIAL_WATER_LEVEL: u8= 64;
-
 struct Game {
   terrain: [u8; (SIZE * SIZE) as usize],
   water: [u8; (SIZE * SIZE) as usize]

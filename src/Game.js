@@ -1,7 +1,6 @@
-import { gameSource } from '../tmp/wasm.js';
+import { gameSource } from '../tmp/game.js';
 import Lens from './Lens.js';
-
-let SIZE = 1024;
+import { SIZE } from '../tmp/constants.js';
 
 /**
  * @constructor
