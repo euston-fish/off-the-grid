@@ -93,3 +93,45 @@ pub fn tick() {
 pub fn address() -> u32 {
   unsafe { (&GAME as *const _) as u32 }
 }
+
+static GRAD3: [[i8; 3]; 12] = [
+    [1,1,0],
+    [-1,1,0],
+    [1,-1,0],
+    [-1,-1,0], 
+    [1,0,1],
+    [-1,0,1],
+    [1,0,-1],
+    [-1,0,-1], 
+    [0,1,1],
+    [0,-1,1],
+    [0,1,-1],
+    [0,-1,-1]
+];
+
+struct Noise {
+  seed: [u8; SIZE as usize]
+}
+
+impl Noise {
+    const fn new() -> Noise {
+        Noise {
+            seed: [0; SIZE as usize]
+        }
+    }
+
+    fn init(&mut self) {
+        for mut cell in self.seed.iter_mut() {
+            *cell = (unsafe { random() } * 256.0) as u8;
+        }
+    }
+}
+
+use std::ops::{Sub};
+
+impl Sub for Noise {
+  type Output = u8;
+
+   fn sub(self, other: Point) -> Point {
+   }
+}
