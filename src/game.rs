@@ -69,17 +69,12 @@ impl Game {
     for (index, mut cell) in self.terrain.iter_mut().enumerate() {
       let x = (index as i32 % SIZE as i32) as f32;
       let y = (index as i32 / SIZE as i32) as f32;
-      let s = noise(x / 8.0, y / 8.0) + 1.0;
+      let s = noise(x / 8.0, y / 8.0) + 0.5;
       let l = noise(x / 24.0, y / 24.0) + 1.0;
       let b = noise(x / 64.0, y / 64.0) + 1.0;
-      unsafe {
-        logf(s);
-        logf(l);
-        logf(b);
-      }
-      *cell = ((s * 0.4 +
+      *cell = ((s * 0.7 +
                 l * 1.8 +
-                b * 1.0) * (128.0 / 3.0)) as u8;
+                b * 0.8) * (128.0 / 3.0)) as u8;
     }
     //for mut cell in self.water.iter_mut() { *cell = INITIAL_WATER_LEVEL }
     for mut cell in self.water.iter_mut() {
