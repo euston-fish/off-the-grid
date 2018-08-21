@@ -53,13 +53,13 @@ impl Game {
         self.water[b] += flow_b;
         self.terrain[a] -= erosion_flow_b;
         self.terrain[b] += erosion_flow_b;
-        erosion_count += (if erosion_flow_b < 128 { erosion_flow_b } else { 256 - erosion_flow_b }) as i32;
+        erosion_count += (if erosion_flow_b < 128 { erosion_flow_b } else { 0 - erosion_flow_b }) as i32;
         let (flow_c, erosion_flow_c) = flow_amounts(self.terrain[a], self.terrain[c], self.water[a], self.water[c]);
         self.water[a] -= flow_c;
         self.water[c] += flow_c;
         self.terrain[a] -= erosion_flow_b;
         self.terrain[c] += erosion_flow_c;
-        erosion_count += (if erosion_flow_c < 128 { erosion_flow_c } else { 256 - erosion_flow_c }) as i32;
+        erosion_count += (if erosion_flow_c < 128 { erosion_flow_c } else { 0 - erosion_flow_c }) as i32;
       }
     }
     unsafe { log(erosion_count); }
@@ -128,13 +128,13 @@ static GRAD3: [[i8; 3]; 12] = [
 ];
 
 struct Noise {
-  seed: [u8; SIZE as usize]
+  seed: [u8; 256 as usize]
 }
 
 impl Noise {
     const fn new() -> Noise {
         Noise {
-            seed: [0; SIZE as usize]
+            seed: [0; 256 as usize]
         }
     }
 
@@ -146,61 +146,29 @@ impl Noise {
 
     fn get(&self, x: f32, y: f32) -> f32 {
         let f2 = 0.5 * ((3 as f32).sqrt() - 1.0);
-        let s = ((x + y) as f32) * f2;
-        let i: f32 = ((x as f32) + s);
-        let j: f32 = ((y as f32) +s);
-        let G2: f32 = (3.0 - (3.0 as f32).sqrt()) / 6.0;
-        let t: f32 = ((i+j) as f32)*G2;
-        let X0: f32 = (i as f32)-t; // Unskew the cell origin back to (x,y) space
-        let Y0: f32 = (j as f32)-t;
-        let x0: f32 = (x as f32) -X0; // The x,y distances from the cell origin
-        let y0: f32 = (y as f32)-Y0;
+        let s = (x + y) * f2;
+        let i = (x + s).floor();
+        let j = (y + s).floor();
+        let g2 = (3.0 - (3 as f32).sqrt()) / 6.0;
+        let t = (i + j) * g2;
+        let (x0, y0) = (i - t, j - t); // Unskew the cell origin back to (x,y) space
+        let (x0, y0) = (x - x0, y - y0); // The x,y distances from the cell origin
         // For the 2D case, the simplex shape is an equilateral triangle.
         // Determine which simplex we are in.
-        let i1: f32;
-        let j1: f32; // Offsets for second (middle) corner of simplex in (i,j) coords
-        if (x0 > y0) {
-            i1=1.0;
-            j1=0.0;
-        } else {
-            i1=0.0;
-            j1=1.0;
-        }
-        let x1 = x0 - (i1 as f32) + G2;
-        let y1 = y0 - (j1 as f32) + G2;
-        let x2 = x0 - 1.0 + 2.0 * G2;
-        let y2 = y0 - 1.0 + 2.0 * G2;
-        let ii = ((i as i32) & 255) as f32;
-        let jj = ((j as i32) & 255) as f32;
-        let gi0: u8 = self.seed[(ii+(self.seed[jj as usize] as f32)) as usize] % 12;
-        let gi1: u8 = self.seed[(ii+i1+(self.seed[(jj+j1) as usize] as f32)) as usize] % 12;
-        let gi2: u8 = self.seed[(ii+1.0+(self.seed[(jj+1.0) as usize] as f32)) as usize] % 12;
-        let mut t0: f32 = 0.5 - x0*x0-y0*y0;
-        let n0: f32;
-        let n1: f32;
-        let n2: f32;
-        if (t0<0.0) {
-            n0 = 0.0;
-        }
-        else {
-          t0 *= t0;
-          n0 = t0 * t0 * self.dot(GRAD3[gi0 as usize], x0, y0);
-        }
-        let mut t1: f32 = 0.5 - x1*x1-y1*y1;
-        if(t1 < 0.0) {
-            n1 = 0.0;
-        } else {
-          t1 *= t1;
-          n1 = t1 * t1 * self.dot(GRAD3[gi1 as usize], x1, y1);
-        }
-        let mut t2: f32 = 0.5 - x2*x2-y2*y2;
-        if(t2 < 0.0) {
-            n2 = 0.0;
-        } else {
-          t2 *= t2;
-          n2 = t2 * t2 * self.dot(GRAD3[gi2 as usize], x2, y2);
-        }
-        return 70.0 * (n0 + n1 + n2) as f32;
+        let (i1, j1) = if x0 > y0 { (1.0, 0.0) } else { (0.0, 1.0) }; // Offsets for second (middle) corner of simplex in (i,j) coords
+        let (x1, y1) = (x0 - i1 + g2, y0 - j1 + g2);
+        let (x2, y2) = (x0 - 1.0 + 2.0 * g2, y0 - 1.0 + 2.0 * g2);
+        let (ii, jj) = ((i as i32) as u8, (j as i32) as u8);
+        let gi0 = self.seed[(ii+self.seed[jj as usize]) as usize] % 12;
+        let gi1 = self.seed[(ii+(i1 as u8)+self.seed[(jj+(j1 as u8)) as usize]) as usize] % 12;
+        let gi2 = self.seed[(ii+1+self.seed[(jj+1) as usize]) as usize] % 12;
+        let t0 = 0.5 - x0.powf(2.0) - y0.powf(2.0);
+        let n0 = if t0 < 0.0 { 0.0 } else { t0.powf(4.0) * self.dot(GRAD3[gi0 as usize], x0, y0) };
+        let t1 = 0.5 - x1.powf(2.0) - y1.powf(2.0);
+        let n1 = if t1 < 0.0 { 0.0 } else { t1.powf(4.0) * self.dot(GRAD3[gi1 as usize], x1, y1) };
+        let t2 = 0.5 - x2.powf(2.0) - y2.powf(2.0);
+        let n2 = if t2 < 0.0 { 0.0 } else { t2.powf(4.0) * self.dot(GRAD3[gi2 as usize], x2, y2) };
+        return 70.0 * (n0 + n1 + n2);
     }
 
     fn dot(&self, grid: [i8; 3], x: f32, y: f32) -> f32 {

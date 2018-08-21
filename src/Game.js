@@ -12,6 +12,7 @@ function Game() {
       'random': Math.random,
       'log': (x) => console.log('from rust with love: ' + x),
       'logf': (x) => console.log('from rust with love: ' + x),
+      'powf': Math.pow
     }
   });
   this.game.exports['init']();
