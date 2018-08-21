@@ -8,7 +8,13 @@ let SIZE = 1024;
  */
 function Game() {
   let module = new WebAssembly.Module(gameSource);
-  this.game = new WebAssembly.Instance(module, { 'env': { 'random': Math.random, 'log': (x) => console.log('from rust with love: ' + x)  } });
+  this.game = new WebAssembly.Instance(module, {
+    'env': {
+      'random': Math.random,
+      'log': (x) => console.log('from rust with love: ' + x),
+      'logf': (x) => console.log('from rust with love: ' + x),
+    }
+  });
   this.game.exports['init']();
   let memory = this.game.exports['memory'];
   this.address = this.game.exports['address']();

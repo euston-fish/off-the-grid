@@ -17,6 +17,6 @@ export const fillTerrain = (terrain) => {
 };
 
 export const fillWater = (water) => {
-  water.updateAll(() => 70);
+  water.updateAll(() => 0);// 70);
   // Math.floor(normal(Math.random(), Math.random()) * 50));
 };

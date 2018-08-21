@@ -9,8 +9,6 @@ export default function() {
 
   let terrain = game.terrain;
   let water = game.water;
-  console.log('creating terrain');
-  fillTerrain(terrain);
   console.log('creating water');
   fillWater(water);
 
