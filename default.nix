@@ -1,74 +1,61 @@
-{ pkgs ? import <nixpkgs> {
-  overlays = [
-    (import ("${builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz}/rust-overlay.nix"))
-    (self: super: {
-      closurecompiler = with self; stdenv.mkDerivation rec {
-        name = "closure-compiler-${version}";
-        version = "20180716";
+let
+  hostPkgs = import <nixpkgs> {};
+  pinnedPkgs = hostPkgs.fetchFromGitHub {
+    owner = "NixOS";
+    repo = "nixpkgs-channels";
+    rev = "411cc559c052feb6e20a01fc6d5fa63cba09ce9a";
+    sha256 = "158xky2p5lfdd5gb1v7rl7ss5k31r2hwazn97srfviivx25karaw";
+  };
+  pkgs = import pinnedPkgs {
+    overlays = [
+      (import ("${builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz}/rust-overlay.nix"))
+      (self: super: {
+        closurecompiler = with self; stdenv.mkDerivation rec {
+          name = "closure-compiler-${version}";
+          version = "20180716";
 
-        src = fetchurl {
-          url = "https://dl.google.com/closure-compiler/compiler-${version}.tar.gz";
-          sha256 = "06yc85pbcw1v36j12qwxkk0pbhziglp3zjkv3xza2v68zvyqy6hd";
+          src = fetchurl {
+            url = "https://dl.google.com/closure-compiler/compiler-${version}.tar.gz";
+            sha256 = "06yc85pbcw1v36j12qwxkk0pbhziglp3zjkv3xza2v68zvyqy6hd";
+          };
+
+          sourceRoot = ".";
+
+          nativeBuildInputs = [ makeWrapper ];
+          buildInputs = [ jre ];
+
+          installPhase = ''
+            mkdir -p $out/share/java $out/bin
+            cp closure-compiler-v${version}.jar $out/share/java
+            makeWrapper ${jre}/bin/java $out/bin/google-closure-compiler \
+              --add-flags "-jar $out/share/java/closure-compiler-v${version}.jar"
+          '';
+
+          meta = with stdenv.lib; {
+            description = "A tool for making JavaScript download and run faster";
+            homepage = https://developers.google.com/closure/compiler/;
+            license = licenses.asl20;
+            platforms = platforms.all;
+          };
         };
+        wabt = with self; stdenv.mkDerivation rec {
+          name = "wabt";
 
-        sourceRoot = ".";
+          src = fetchFromGitHub {
+            sha256 = "1r10sd8qa72rzdghjswjn3p3yx18g1sa88baj2892wpazz3k62rs";
+            rev = "f835db8cfb418bb19dd61a10dbe49e1131b664bc";
+            repo = "wabt";
+            owner = "WebAssembly";
+          };
 
-        nativeBuildInputs = [ makeWrapper ];
-        buildInputs = [ jre ];
+          buildInputs = [ gcc cmake python ];
 
-        installPhase = ''
-          mkdir -p $out/share/java $out/bin
-          cp closure-compiler-v${version}.jar $out/share/java
-          makeWrapper ${jre}/bin/java $out/bin/google-closure-compiler \
-            --add-flags "-jar $out/share/java/closure-compiler-v${version}.jar"
-        '';
-
-        meta = with stdenv.lib; {
-          description = "A tool for making JavaScript download and run faster";
-          homepage = https://developers.google.com/closure/compiler/;
-          license = licenses.asl20;
-          platforms = platforms.all;
+          cmakeFlags = [ "-DBUILD_TESTS=OFF" ];
         };
-      };
-      wabt = with self; stdenv.mkDerivation rec {
-        name = "wabt";
-
-        src = fetchFromGitHub {
-          sha256 = "1r10sd8qa72rzdghjswjn3p3yx18g1sa88baj2892wpazz3k62rs";
-          rev = "f835db8cfb418bb19dd61a10dbe49e1131b664bc";
-          repo = "wabt";
-          owner = "WebAssembly";
-        };
-
-        buildInputs = [ gcc cmake python ];
-
-        cmakeFlags = [ "-DBUILD_TESTS=OFF" ];
-      };
-      binaryen = with self; stdenv.mkDerivation rec {
-        version = "42";
-        rev = "version_${version}";
-        name = "binaryen-${version}";
-
-        src = fetchFromGitHub {
-          owner = "WebAssembly";
-          repo = "binaryen";
-          sha256 = "0b8qc9cd7ncshgfjwv4hfapmwa81gmniaycnxmdkihq9bpm26x2k";
-          inherit rev;
-        };
-
-        nativeBuildInputs = [ cmake ];
-
-        meta = with stdenv.lib; {
-          homepage = https://github.com/WebAssembly/binaryen;
-          description = "Compiler infrastructure and toolchain library for WebAssembly, in C++";
-          platforms = platforms.all;
-          maintainers = with maintainers; [ asppsa ];
-          license = licenses.asl20;
-        };
-      };
-    })
-  ];
-} }:
+      })
+    ];
+  };
+in
   with pkgs; stdenv.mkDerivation {
     name = "off-the-grid";
     buildInputs = [

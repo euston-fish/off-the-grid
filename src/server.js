@@ -1,5 +1,5 @@
 import { SIZE } from '../tmp/constants.js';
-import { fillTerrain, fillWater } from './generate.js';
+import { fillWater } from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import Game from './Game.js';
