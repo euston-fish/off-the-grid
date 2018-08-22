@@ -1,3 +1,6 @@
 {
-  "size": 1024
+  "size": 1024,
+  "simulation": {
+    "dry_depth": 3
+  }
 }

@@ -15,7 +15,7 @@ fn rand_round(x: f32) -> u8 {
   let probability_high = x - x.floor();
   let rounded_down = x.floor() as i16;
   let rand_rounded = rounded_down + if (unsafe { random() } as f32) < probability_high { 1 } else { 0 };
-  (if rand_rounded > 0 { rand_rounded } else { 256 - rand_rounded }) as u8
+  (if rand_rounded > 0 { rand_rounded } else { rand_rounded + 256 }) as u8
 }
 
 fn flow_amounts(height_a: u8, height_b: u8, water_a: u8, water_b: u8) -> (u8, u8) {
@@ -33,28 +33,36 @@ impl Game {
     ((c % SIZE) * SIZE + (r % SIZE)) as usize
   }
 
+  fn flow_from(&self, a: usize, b: usize) -> u8 {
+    match (self.terrain[a], self.terrain[b], self.water[a], self.water[b]) {
+      (_, _, wa, wb) if wa < wb => 0, // don't flow up
+      (ta, _, wa, _) if wa <= ta - DRY_DEPTH => 0, // don't flow out of a dry square
+      (ta, tb, wa, wb) if wa <= ta && wb <= tb => rand_round((wa - wb) as f32 * 0.001), // flow slowly through earth
+      (ta, _, wa, wb) if wa <= ta => rand_round((wa - wb) as f32 * 0.05), // flow kinda slowly out of earth
+      (_, _, wa, wb) => rand_round((wa - wb) as f32 * 0.4), // flow normally out of saturated land
+    }
+  }
+
   fn tick(&mut self) {
-    let mut erosion_count: i32 = 0;
     for c in 0..SIZE {
       for r in 0..SIZE {
         let a = self.index(c, r);
         let b = self.index(c+1, r);
         let c = self.index(c, r+1);
-        let (flow_b, erosion_flow_b) = flow_amounts(self.terrain[a], self.terrain[b], self.water[a], self.water[b]);
-        self.water[a] -= flow_b;
-        self.water[b] += flow_b;
-        self.terrain[a] -= erosion_flow_b;
-        self.terrain[b] += erosion_flow_b;
-        erosion_count += (if erosion_flow_b < 128 { erosion_flow_b } else { 0 - erosion_flow_b }) as i32;
-        let (flow_c, erosion_flow_c) = flow_amounts(self.terrain[a], self.terrain[c], self.water[a], self.water[c]);
-        self.water[a] -= flow_c;
-        self.water[c] += flow_c;
-        self.terrain[a] -= erosion_flow_b;
-        self.terrain[c] += erosion_flow_c;
-        erosion_count += (if erosion_flow_c < 128 { erosion_flow_c } else { 0 - erosion_flow_c }) as i32;
+        let flow_ab = self.flow_from(a, b);
+        let flow_ba = self.flow_from(b, a);
+        let flow_ac = self.flow_from(a, c);
+        let flow_ca = self.flow_from(c, a);
+        self.water[a] += flow_ba - flow_ab;
+        self.water[b] += flow_ab - flow_ba;
+        //self.terrain[a] -= erosion_flow_b;
+        //self.terrain[b] += erosion_flow_b;
+        self.water[a] += flow_ca - flow_ac;
+        self.water[c] += flow_ac - flow_ca;
+        //self.terrain[a] -= erosion_flow_b;
+        //self.terrain[c] += erosion_flow_c;
       }
     }
-    unsafe { log(erosion_count); }
   }
 
   fn init(&mut self) {
@@ -70,8 +78,8 @@ impl Game {
     }
 
     for (mut water, terrain) in self.water.iter_mut().zip(self.terrain.iter()) {
-      let lowest_level = (*terrain as f32) - 5.0;
-      let highest_level = (*terrain as f32) + 10.0;
+      let lowest_level = (*terrain - DRY_DEPTH) as f32;
+      let highest_level = (*terrain + 10) as f32;
       *water = (unsafe { random() as f32 } * (highest_level - lowest_level) + lowest_level).min(255.0).max(0.0) as u8;
     }
   }
