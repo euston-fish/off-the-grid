@@ -1,5 +1,4 @@
 import { SIZE } from '../tmp/constants.js';
-import { fillWater } from './generate.js';
 import Lens from './Lens.js';
 import Block from './Block.js';
 import Game from './Game.js';
@@ -9,8 +8,6 @@ export default function() {
 
   let terrain = game.terrain;
   let water = game.water;
-  console.log('creating water');
-  fillWater(water);
 
   console.log('creating blocks');
   let blocks = new Lens(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);

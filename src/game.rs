@@ -1,5 +1,5 @@
-#![feature(const_fn)]
 use std::f32;
+use std::ops::{Index,IndexMut};
 
 extern {
   fn random() -> f64;
@@ -7,66 +7,103 @@ extern {
   fn logf(v: f32);
 }
 
+#[derive(Clone,Copy)]
+struct Coordinate {
+  c: u32,
+  r: u32
+}
+
+struct Layer {
+  values: [u8; (SIZE * SIZE) as usize]
+}
+
+impl Index<Coordinate> for Layer {
+  type Output = u8;
+
+  fn index(&self, index: Coordinate) -> &u8 {
+    let Coordinate { c, r } = index;
+    &self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
+  }
+}
+
+impl IndexMut<Coordinate> for Layer {
+  fn index_mut(&mut self, index: Coordinate) -> &mut u8 {
+    let Coordinate { c, r } = index;
+    &mut self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
+  }
+}
+
 struct Game {
-  terrain: [u8; (SIZE * SIZE) as usize],
-  water: [u8; (SIZE * SIZE) as usize]
+  terrain: Layer,
+  water: Layer
 }
 
 fn rand_round(x: f32) -> u8 {
   let probability_high = x - x.floor();
   let rounded_down = x.floor() as i16;
   let rand_rounded = rounded_down + if (unsafe { random() } as f32) < probability_high { 1 } else { 0 };
-  (if rand_rounded > 0 { rand_rounded } else { 256 - rand_rounded }) as u8
-}
-
-fn flow_amounts(height_a: u8, height_b: u8, water_a: u8, water_b: u8) -> (u8, u8) {
-  let saturated_a = water_a > height_a;
-  let saturated_b = water_b > height_b;
-  let flow_rate: f32 = (if saturated_a { 0.4 } else { 0.01 }) * (if saturated_b { 0.4 } else { 0.01 });
-  let height_difference: f32 = water_a as f32 - water_b as f32;
-  let water_flow_amount = flow_rate * height_difference;
-  let erosion_flow_amount = if saturated_a && saturated_b { water_flow_amount * 0.0004 } else { 0.0 };
-  (rand_round(water_flow_amount), rand_round(erosion_flow_amount))
+  (if rand_rounded > 0 { rand_rounded } else { rand_rounded + 256 }) as u8
 }
 
 impl Game {
-  const fn new() -> Game {
-    Game {
-      terrain: [0; (SIZE * SIZE) as usize],
-      water: [0; (SIZE * SIZE) as usize]
-    }
-  }
-
   fn index(&self, c: u32, r: u32) -> usize {
     ((c % SIZE) * SIZE + (r % SIZE)) as usize
   }
 
+  fn flow(&mut self, a: Coordinate, b: Coordinate, amount: u8) {
+    self.water[a] -= amount;
+    self.water[b] += amount;
+  }
+
+  fn erode(&mut self, a: Coordinate, b: Coordinate, amount: u8) {
+    self.terrain[a] -= amount;
+    self.terrain[b] += amount;
+  }
+
+  #[inline(always)]
+  fn flow_amount(&self, a: Coordinate, b: Coordinate) -> u8 {
+    match (self.terrain[a], self.terrain[b], self.water[a], self.water[b]) {
+      (_, _, wa, wb) if wa < wb => 0, // don't flow up
+      (ta, _, wa, _) if wa <= ta - DRY_DEPTH => 0, // don't flow out of a dry square
+      (ta, tb, wa, wb) if wa <= ta && wb <= tb => rand_round((wa - wb) as f32 * 0.001), // flow slowly through earth
+      (ta, _, wa, wb) if wa <= ta => rand_round((wa - wb) as f32 * 0.05), // flow kinda slowly out of earth
+      (_, _, wa, wb) => rand_round((wa - wb) as f32 * 0.4), // flow normally out of saturated land
+    }
+  }
+
+  #[inline(always)]
+  fn erosion_amount(&self, a: Coordinate, b: Coordinate, flow_amount: u8) -> u8 {
+    if self.terrain[a] <= self.terrain[b] {
+      0
+    } else {
+      rand_round((self.terrain[a] - self.terrain[b]) as f32 * 0.001 * flow_amount as f32)
+    }
+  }
+
+  #[inline(always)]
+  fn consider_pair(&mut self, a: Coordinate, b: Coordinate) {
+    let flow = self.flow_amount(a, b);
+    let erosion = self.erosion_amount(a, b, flow);
+    self.flow(a, b, flow);
+    self.erode(a, b, erosion);
+  }
+
   fn tick(&mut self) {
-    let mut erosion_count: i32 = 0;
     for c in 0..SIZE {
       for r in 0..SIZE {
-        let a = self.index(c, r);
-        let b = self.index(c+1, r);
-        let c = self.index(c, r+1);
-        let (flow_b, erosion_flow_b) = flow_amounts(self.terrain[a], self.terrain[b], self.water[a], self.water[b]);
-        self.water[a] -= flow_b;
-        self.water[b] += flow_b;
-        self.terrain[a] -= erosion_flow_b;
-        self.terrain[b] += erosion_flow_b;
-        erosion_count += (if erosion_flow_b < 128 { erosion_flow_b } else { 0 - erosion_flow_b }) as i32;
-        let (flow_c, erosion_flow_c) = flow_amounts(self.terrain[a], self.terrain[c], self.water[a], self.water[c]);
-        self.water[a] -= flow_c;
-        self.water[c] += flow_c;
-        self.terrain[a] -= erosion_flow_b;
-        self.terrain[c] += erosion_flow_c;
-        erosion_count += (if erosion_flow_c < 128 { erosion_flow_c } else { 0 - erosion_flow_c }) as i32;
+        let a = Coordinate { c, r };
+        let b = Coordinate { c: c + 1, r: r };
+        let c = Coordinate { c: c, r: r + 1 };
+        self.consider_pair(a, b);
+        self.consider_pair(b, a);
+        self.consider_pair(a, c);
+        self.consider_pair(c, a);
       }
     }
-    unsafe { log(erosion_count); }
   }
 
   fn init(&mut self) {
-    for (index, mut cell) in self.terrain.iter_mut().enumerate() {
+    for (index, mut cell) in self.terrain.values.iter_mut().enumerate() {
       let x = (index as i32 % SIZE as i32) as f32;
       let y = (index as i32 / SIZE as i32) as f32;
       let s = noise(x / 8.0, y / 8.0) + 0.5;
@@ -76,15 +113,24 @@ impl Game {
                 l * 1.8 +
                 b * 0.8) * (128.0 / 3.0)) as u8;
     }
-    //for mut cell in self.water.iter_mut() { *cell = INITIAL_WATER_LEVEL }
-    for mut cell in self.water.iter_mut() {
-      *cell = (unsafe { random() } * 256.0) as u8;
+
+    for (mut water, terrain) in self.water.values.iter_mut().zip(self.terrain.values.iter()) {
+      let lowest_level = (*terrain - DRY_DEPTH) as f32;
+      let highest_level = (*terrain + 10) as f32;
+      *water = (unsafe { random() as f32 } * (highest_level - lowest_level) + lowest_level).min(255.0).max(0.0) as u8;
     }
   }
 }
 
-static mut GAME: Game = Game::new();
-static mut NOISE: Noise = Noise::new();
+static mut GAME: Game =
+  Game {
+    terrain: Layer { values: [0; (SIZE * SIZE) as usize] },
+    water: Layer { values: [0; (SIZE * SIZE) as usize] }
+  };
+static mut NOISE: Noise =
+  Noise {
+    seed: [0; 256 as usize]
+  };
 
 #[no_mangle]
 pub fn init() {
@@ -127,12 +173,6 @@ struct Noise {
 }
 
 impl Noise {
-  const fn new() -> Noise {
-    Noise {
-      seed: [0; 256 as usize]
-    }
-  }
-
   fn init(&mut self) {
     for mut cell in self.seed.iter_mut() {
       *cell = (unsafe { random() } * 256.0) as u8;
