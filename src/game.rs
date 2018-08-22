@@ -107,8 +107,8 @@ impl Game {
       let x = (index as i32 % SIZE as i32) as f32;
       let y = (index as i32 / SIZE as i32) as f32;
       let s = noise(x / 8.0, y / 8.0) + 0.5;
-      let l = noise(x / 24.0, y / 24.0) + 1.0;
-      let b = noise(x / 64.0, y / 64.0) + 1.0;
+      let l = noise((x + SIZE as f32) / 24.0, y / 24.0) + 1.0;
+      let b = noise((x + 2.0 * SIZE as f32) / 64.0, y / 64.0) + 1.0;
       *cell = ((s * 0.7 +
                 l * 1.8 +
                 b * 0.8) * (128.0 / 3.0)) as u8;
