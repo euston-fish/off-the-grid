@@ -18,22 +18,23 @@ fn rand_round(x: f32) -> u8 {
   (if rand_rounded > 0 { rand_rounded } else { rand_rounded + 256 }) as u8
 }
 
-fn flow_amounts(height_a: u8, height_b: u8, water_a: u8, water_b: u8) -> (u8, u8) {
-  let saturated_a = water_a > height_a;
-  let saturated_b = water_b > height_b;
-  let flow_rate: f32 = (if saturated_a { 0.4 } else { 0.01 }) * (if saturated_b { 0.4 } else { 0.01 });
-  let height_difference: f32 = water_a as f32 - water_b as f32;
-  let water_flow_amount = flow_rate * height_difference;
-  let erosion_flow_amount = if saturated_a && saturated_b { water_flow_amount * 0.0004 } else { 0.0 };
-  (rand_round(water_flow_amount), rand_round(erosion_flow_amount))
-}
-
 impl Game {
   fn index(&self, c: u32, r: u32) -> usize {
     ((c % SIZE) * SIZE + (r % SIZE)) as usize
   }
 
-  fn flow_from(&self, a: usize, b: usize) -> u8 {
+  fn flow(&mut self, a: usize, b: usize, amount: u8) {
+    self.water[a] -= amount;
+    self.water[b] += amount;
+  }
+
+  fn erode(&mut self, a: usize, b: usize, amount: u8) {
+    self.terrain[a] -= amount;
+    self.terrain[b] += amount;
+  }
+
+  #[inline(always)]
+  fn flow_amount(&self, a: usize, b: usize) -> u8 {
     match (self.terrain[a], self.terrain[b], self.water[a], self.water[b]) {
       (_, _, wa, wb) if wa < wb => 0, // don't flow up
       (ta, _, wa, _) if wa <= ta - DRY_DEPTH => 0, // don't flow out of a dry square
@@ -43,24 +44,33 @@ impl Game {
     }
   }
 
+  #[inline(always)]
+  fn erosion_amount(&self, a: usize, b: usize, flow_amount: u8) -> u8 {
+    if self.terrain[a] <= self.terrain[b] {
+      0
+    } else {
+      rand_round((self.terrain[a] - self.terrain[b]) as f32 * 0.001 * flow_amount as f32)
+    }
+  }
+
+  #[inline(always)]
+  fn consider_pair(&mut self, a: usize, b: usize) {
+    let flow = self.flow_amount(a, b);
+    let erosion = self.erosion_amount(a, b, flow);
+    self.flow(a, b, flow);
+    self.erode(a, b, erosion);
+  }
+
   fn tick(&mut self) {
     for c in 0..SIZE {
       for r in 0..SIZE {
         let a = self.index(c, r);
         let b = self.index(c+1, r);
         let c = self.index(c, r+1);
-        let flow_ab = self.flow_from(a, b);
-        let flow_ba = self.flow_from(b, a);
-        let flow_ac = self.flow_from(a, c);
-        let flow_ca = self.flow_from(c, a);
-        self.water[a] += flow_ba - flow_ab;
-        self.water[b] += flow_ab - flow_ba;
-        //self.terrain[a] -= erosion_flow_b;
-        //self.terrain[b] += erosion_flow_b;
-        self.water[a] += flow_ca - flow_ac;
-        self.water[c] += flow_ac - flow_ca;
-        //self.terrain[a] -= erosion_flow_b;
-        //self.terrain[c] += erosion_flow_c;
+        self.consider_pair(a, b);
+        self.consider_pair(b, a);
+        self.consider_pair(a, c);
+        self.consider_pair(c, a);
       }
     }
   }
