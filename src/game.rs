@@ -1,4 +1,5 @@
 use std::f32;
+use std::ops::{Index,IndexMut};
 
 extern {
   fn random() -> f64;
@@ -6,9 +7,35 @@ extern {
   fn logf(v: f32);
 }
 
+#[derive(Clone,Copy)]
+struct Coordinate {
+  c: u32,
+  r: u32
+}
+
+struct Layer {
+  values: [u8; (SIZE * SIZE) as usize]
+}
+
+impl Index<Coordinate> for Layer {
+  type Output = u8;
+
+  fn index(&self, index: Coordinate) -> &u8 {
+    let Coordinate { c, r } = index;
+    &self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
+  }
+}
+
+impl IndexMut<Coordinate> for Layer {
+  fn index_mut(&mut self, index: Coordinate) -> &mut u8 {
+    let Coordinate { c, r } = index;
+    &mut self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
+  }
+}
+
 struct Game {
-  terrain: [u8; (SIZE * SIZE) as usize],
-  water: [u8; (SIZE * SIZE) as usize]
+  terrain: Layer,
+  water: Layer
 }
 
 fn rand_round(x: f32) -> u8 {
@@ -23,18 +50,18 @@ impl Game {
     ((c % SIZE) * SIZE + (r % SIZE)) as usize
   }
 
-  fn flow(&mut self, a: usize, b: usize, amount: u8) {
+  fn flow(&mut self, a: Coordinate, b: Coordinate, amount: u8) {
     self.water[a] -= amount;
     self.water[b] += amount;
   }
 
-  fn erode(&mut self, a: usize, b: usize, amount: u8) {
+  fn erode(&mut self, a: Coordinate, b: Coordinate, amount: u8) {
     self.terrain[a] -= amount;
     self.terrain[b] += amount;
   }
 
   #[inline(always)]
-  fn flow_amount(&self, a: usize, b: usize) -> u8 {
+  fn flow_amount(&self, a: Coordinate, b: Coordinate) -> u8 {
     match (self.terrain[a], self.terrain[b], self.water[a], self.water[b]) {
       (_, _, wa, wb) if wa < wb => 0, // don't flow up
       (ta, _, wa, _) if wa <= ta - DRY_DEPTH => 0, // don't flow out of a dry square
@@ -45,7 +72,7 @@ impl Game {
   }
 
   #[inline(always)]
-  fn erosion_amount(&self, a: usize, b: usize, flow_amount: u8) -> u8 {
+  fn erosion_amount(&self, a: Coordinate, b: Coordinate, flow_amount: u8) -> u8 {
     if self.terrain[a] <= self.terrain[b] {
       0
     } else {
@@ -54,7 +81,7 @@ impl Game {
   }
 
   #[inline(always)]
-  fn consider_pair(&mut self, a: usize, b: usize) {
+  fn consider_pair(&mut self, a: Coordinate, b: Coordinate) {
     let flow = self.flow_amount(a, b);
     let erosion = self.erosion_amount(a, b, flow);
     self.flow(a, b, flow);
@@ -64,9 +91,9 @@ impl Game {
   fn tick(&mut self) {
     for c in 0..SIZE {
       for r in 0..SIZE {
-        let a = self.index(c, r);
-        let b = self.index(c+1, r);
-        let c = self.index(c, r+1);
+        let a = Coordinate { c, r };
+        let b = Coordinate { c: c + 1, r: r };
+        let c = Coordinate { c: c, r: r + 1 };
         self.consider_pair(a, b);
         self.consider_pair(b, a);
         self.consider_pair(a, c);
@@ -76,7 +103,7 @@ impl Game {
   }
 
   fn init(&mut self) {
-    for (index, mut cell) in self.terrain.iter_mut().enumerate() {
+    for (index, mut cell) in self.terrain.values.iter_mut().enumerate() {
       let x = (index as i32 % SIZE as i32) as f32;
       let y = (index as i32 / SIZE as i32) as f32;
       let s = noise(x / 8.0, y / 8.0) + 0.5;
@@ -87,7 +114,7 @@ impl Game {
                 b * 0.8) * (128.0 / 3.0)) as u8;
     }
 
-    for (mut water, terrain) in self.water.iter_mut().zip(self.terrain.iter()) {
+    for (mut water, terrain) in self.water.values.iter_mut().zip(self.terrain.values.iter()) {
       let lowest_level = (*terrain - DRY_DEPTH) as f32;
       let highest_level = (*terrain + 10) as f32;
       *water = (unsafe { random() as f32 } * (highest_level - lowest_level) + lowest_level).min(255.0).max(0.0) as u8;
@@ -97,8 +124,8 @@ impl Game {
 
 static mut GAME: Game =
   Game {
-    terrain: [0; (SIZE * SIZE) as usize],
-    water: [0; (SIZE * SIZE) as usize]
+    terrain: Layer { values: [0; (SIZE * SIZE) as usize] },
+    water: Layer { values: [0; (SIZE * SIZE) as usize] }
   };
 static mut NOISE: Noise =
   Noise {
