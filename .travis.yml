@@ -1,5 +1,9 @@
 language: nix
 
+os:
+  - linux
+  - osx
+
 script:
   - nix-build --cores 2
 
