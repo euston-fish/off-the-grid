@@ -68,9 +68,11 @@ impl Game {
                 l * 1.8 +
                 b * 0.8) * (128.0 / 3.0)) as u8;
     }
-    //for mut cell in self.water.iter_mut() { *cell = INITIAL_WATER_LEVEL }
-    for mut cell in self.water.iter_mut() {
-      *cell = (unsafe { random() } * 256.0) as u8;
+
+    for (mut water, terrain) in self.water.iter_mut().zip(self.terrain.iter()) {
+      let lowest_level = (*terrain as f32) - 5.0;
+      let highest_level = (*terrain as f32) + 10.0;
+      *water = (unsafe { random() as f32 } * (highest_level - lowest_level) + lowest_level).min(255.0).max(0.0) as u8;
     }
   }
 }
