@@ -1,4 +1,3 @@
-#![feature(const_fn)]
 use std::f32;
 
 extern {
@@ -30,13 +29,6 @@ fn flow_amounts(height_a: u8, height_b: u8, water_a: u8, water_b: u8) -> (u8, u8
 }
 
 impl Game {
-  const fn new() -> Game {
-    Game {
-      terrain: [0; (SIZE * SIZE) as usize],
-      water: [0; (SIZE * SIZE) as usize]
-    }
-  }
-
   fn index(&self, c: u32, r: u32) -> usize {
     ((c % SIZE) * SIZE + (r % SIZE)) as usize
   }
@@ -83,8 +75,15 @@ impl Game {
   }
 }
 
-static mut GAME: Game = Game::new();
-static mut NOISE: Noise = Noise::new();
+static mut GAME: Game =
+  Game {
+    terrain: [0; (SIZE * SIZE) as usize],
+    water: [0; (SIZE * SIZE) as usize]
+  };
+static mut NOISE: Noise =
+  Noise {
+    seed: [0; 256 as usize]
+  };
 
 #[no_mangle]
 pub fn init() {
@@ -127,12 +126,6 @@ struct Noise {
 }
 
 impl Noise {
-  const fn new() -> Noise {
-    Noise {
-      seed: [0; 256 as usize]
-    }
-  }
-
   fn init(&mut self) {
     for mut cell in self.seed.iter_mut() {
       *cell = (unsafe { random() } * 256.0) as u8;

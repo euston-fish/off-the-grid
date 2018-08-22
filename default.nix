@@ -66,7 +66,7 @@ in
       unzip
       curl
       jq
-      (pkgs.latest.rustChannels.nightly.rust.override {
+      (pkgs.latest.rustChannels.stable.rust.override {
         targets = [ "wasm32-unknown-unknown" ];
       })
       wabt # This gives some tools for wasm
