@@ -75,6 +75,21 @@ export default (function (DEBUG) {
       }
     });
 
+    let toolbar = document.getElementById('toolbar');
+    let setActive = (active) => toolbar.childNodes.forEach(node =>
+        node.className = 'instruction' + (node === active ? ' active' : ''));
+    let addAction = (name) => {
+      let instruction = document.createElement("div");
+      instruction.innerText = name;
+      instruction.className = 'instruction';
+      toolbar.appendChild(instruction);
+      instruction.addEventListener('click', () => setActive(instruction));
+    }
+    addAction("Things");
+    addAction("Stuff");
+    addAction("More things");
+
+
     bind();
     repaint();
   }, false);
