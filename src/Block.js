@@ -8,8 +8,8 @@ import Lens from './Lens.js';
 function Block(coords, block) {
   this.coords = coords;
   let { terrain, water } = block || {};
-  this.terrain = terrain || new Lens(new Uint8Array(16 * 16), [16, 16]);
-  this.water = water || new Lens(new Uint8Array(16 * 16), [16, 16]);
+  this.terrain = terrain || new Lens(new Float32Array(16 * 16), [16, 16]);
+  this.water = water || new Lens(new Float32Array(16 * 16), [16, 16]);
 }
 
 Block.worldToBlock = ([c, r]) => [Math.floor(c / 16), Math.floor(r / 16)];
