@@ -25,10 +25,11 @@ let env_to_color = (height, water_height) => {
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
 
-const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
+const draw = (ctx, canvas, viewport_offset, blockManager, cursor_location, show_hover) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let [cs, rs] = pixelToWorld(viewport_offset, [0, 0]);
   let [ce, re] = pixelToWorld(viewport_offset, [canvas.width, canvas.height]);
+  let [cx, cy] = pixelToWorld(viewport_offset, cursor_location);
   for (let c = cs; c <= ce; c++) {
     for (let r = rs; r <= re; r++) {
       let block = blockManager.get(Block.worldToBlock([c, r]));
@@ -42,6 +43,10 @@ const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
       let [px, py] = worldToPixel(viewport_offset, [c, r]);
       ctx.fillStyle = env_to_color(height, waterHeight);
       ctx.fillRect(px, py, W, W);
+      if (show_hover && c == cx && r == cy) {
+        ctx.fillStyle = 'rgba(255,255,255,30%)';
+        ctx.fillRect(px, py, W, W);
+      }
       if (DEBUG) {
         ctx.font = '12px sans-serif';
         ctx.textBaseline = 'top';
@@ -54,13 +59,6 @@ const draw = (ctx, canvas, viewport_offset, objects, blockManager) => {
       }
     }
   }
-  objects.forEach(([[c, r], object]) => {
-    ctx.save();
-    let [px, py] = worldToPixel(viewport_offset, [c, r]);
-    ctx.translate(px, py);
-    object.draw(ctx);
-    ctx.restore();
-  });
   if (DEBUG) {
     ctx.fillText([cs, rs].toString(), 5, 5);
   }

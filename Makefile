@@ -14,6 +14,7 @@ SOURCES=src/Array.js \
         src/server.js \
         src/client.js \
         src/GridItem.js \
+        src/Instruction.js \
         src/draw.js \
         src/index.js
 OUTPUTS=shared.js server.js index.html

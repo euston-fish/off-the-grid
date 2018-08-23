@@ -1,6 +1,6 @@
 import BlockManager from './BlockManager.js';
-import GridItem from './GridItem.js';
 import draw from './draw.js';
+import { onActiveChanged, initializeToolbar, Instruction, getActiveInstructions } from './Instruction.js';
 
 export default (function (DEBUG) {
   /* global io */
@@ -13,12 +13,6 @@ export default (function (DEBUG) {
     let socket;
 
     let blockManager = new BlockManager();
-
-    let objects = [
-      [[12, 23], new GridItem('cloud', {direction: 2})],
-      [[18, 24], new GridItem('cloud', {direction: 3})],
-      [[14, 24], new GridItem('trees')],
-    ];
 
     let bind = () => {
       socket.on('start', () => {
@@ -52,13 +46,16 @@ export default (function (DEBUG) {
 
     let viewport_offset = [0, 0];
     let prev_mouse_location = null;
+    let mouse_location = [-1, -1];
+    let show_hover = false;
 
     let repaint = () => draw(
       ctx,
       canvas,
       viewport_offset,
-      objects,
-      blockManager
+      blockManager,
+      mouse_location,
+      show_hover
     );
     blockManager.addEventListener('update',
       () => window.requestAnimationFrame(repaint));
@@ -66,29 +63,28 @@ export default (function (DEBUG) {
     canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
     canvas.addEventListener('mouseup', () => prev_mouse_location = null);
     canvas.addEventListener('mousemove', (event) => {
+      mouse_location = [event.x, event.y];
       if (prev_mouse_location) {
         let delta = [event.x, event.y].sub(prev_mouse_location);
         viewport_offset = viewport_offset.sub(delta);
-        prev_mouse_location = [event.x, event.y];
-        window.requestAnimationFrame(repaint);
+        prev_mouse_location = mouse_location;
         viewport_offset = viewport_offset.map(c => Math.max(c, 0));
       }
+      window.requestAnimationFrame(repaint);
     });
 
-    let toolbar = document.getElementById('toolbar');
-    let setActive = (active) => toolbar.childNodes.forEach(node =>
-      node.className = 'instruction' + (node === active ? ' active' : ''));
-    let addAction = (name) => {
-      let instruction = document.createElement('div');
-      instruction.innerText = name;
-      instruction.className = 'instruction';
-      toolbar.appendChild(instruction);
-      instruction.addEventListener('click', () => setActive(instruction));
-    };
-    addAction('Things');
-    addAction('Stuff');
-    addAction('More things');
+    initializeToolbar('toolbar');
+    new Instruction('foobar').addToToolbar();
+    new Instruction('barfoo').addToToolbar();
+    onActiveChanged((activeButt) => {
+      show_hover = activeButt != null;
+    });
 
+    setInterval(() => {
+      if (getActiveInstructions().length < 5) {
+        Instruction.randomInstruction().addToToolbar();
+      }
+    }, 5000);
 
     bind();
     repaint();
