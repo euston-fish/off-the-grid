@@ -19,8 +19,8 @@ function Game() {
   let memory = this.game.exports['memory'];
   this.address = this.game.exports['address']();
   console.log('address: ' + this.address);
-  this.terrain = new Lens(new Uint8Array(memory.buffer, this.address, SIZE * SIZE), [SIZE, SIZE]);
-  this.water = new Lens(new Uint8Array(memory.buffer, this.address + SIZE * SIZE, SIZE * SIZE), [SIZE, SIZE]);
+  this.terrain = new Lens(new Float32Array(memory.buffer, this.address, SIZE * SIZE), [SIZE, SIZE]);
+  this.water = new Lens(new Float32Array(memory.buffer, this.address + SIZE * SIZE * 4, SIZE * SIZE), [SIZE, SIZE]);
 }
 
 Game.prototype.tick = function() {

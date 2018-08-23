@@ -4,7 +4,8 @@ import Block from './Block.js';
 
 /* global DEBUG */
 
-let env_to_color = (height, water_height) => {
+let env_to_color = (height, water) => {
+  let water_height = height + water;
   if (water_height > height) {
     water_height = water_height / 255;
     return 'hsl(230,80%,' + Math.floor(scale_over_range(water_height, 32, 72)) + '%)';
@@ -53,7 +54,7 @@ const draw = (ctx, canvas, viewport_offset, blockManager, cursor_location, show_
         ctx.fillStyle = 'black';
         let offset = 1;
         for (let param of (window['debugParams'] || [])) {
-          ctx.fillText(params[param], px + 1, py + offset);
+          ctx.fillText(params[param].toFixed(0), px + 1, py + offset);
           offset += 13;
         }
       }
