@@ -9,6 +9,9 @@ export const initializeToolbar = (id) => {
 export const getActiveInstructions = () => buttons;
 export const onActiveChanged = (callback) => onActiveChangedCallback = callback;
 
+/**
+ * @constructor
+ */
 export const Instruction = function(name, impact) {
   this.name = name;
   this.impact = impact;
