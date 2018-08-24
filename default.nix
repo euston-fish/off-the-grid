@@ -76,7 +76,7 @@ in
     src = ./.;
     js13kserver = fetchurl {
       url = https://github.com/js13kgames/js13kserver/archive/master.zip;
-      sha256 = "1wxivky8g9dq7jbvl7kaiqh5qg5r6an7yyr1vzqf3qvd1h50rjkf";
+      sha256 = "0s2xgjfkkmih2vz47y5wwcmmjrpiw939gn4xjcg1bk1ld9qzaqa2";
     };
     preBuild = ''
       cp $js13kserver js13kserver.zip
