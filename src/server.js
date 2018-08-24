@@ -1,6 +1,4 @@
 import { SIZE } from '../tmp/constants.js';
-import Lens from './Lens.js';
-import Block from './Block.js';
 import Game from './Game.js';
 
 export default function() {
@@ -8,14 +6,6 @@ export default function() {
 
   let terrain = game.terrain;
   let water = game.water;
-
-  console.log('creating blocks');
-  let blocks = new Lens(new Array(SIZE * SIZE / 16 / 16), [SIZE / 16, SIZE / 16]);
-  blocks.updateAll((_, [c, r]) => new Block([c, r], {
-    terrain: terrain.window([c * 16, r * 16], [16, 16]),
-    water: water.window([c * 16, r * 16], [16, 16])
-  }));
-  console.log('done');
 
   let tick = () => {
     let start = new Date();
@@ -35,8 +25,26 @@ export default function() {
       console.log('Connected: ' + socket.id);
     },
 
-    'block/:col/:row': (req, res) => {
-      res.json(blocks.get([parseInt(req['params']['col']), parseInt(req['params']['row'])]));
-    }
+    'terrain/:col/:row/:width/:height': (req, res) => {
+      let [col, row, width, height] = ['col', 'row', 'width', 'height'].map(a => parseInt(req['params'][a]));
+      let response = [];
+      for (let c = col; c < col + width; c++) {
+        for (let r = row; r < row + height; r++) {
+          response.push(terrain.get([c.mod(SIZE), r.mod(SIZE)]));
+        }
+      }
+      res.json(response);
+    },
+
+    'water/:col/:row/:width/:height': (req, res) => {
+      let [col, row, width, height] = ['col', 'row', 'width', 'height'].map(a => parseInt(req['params'][a]));
+      let response = [];
+      for (let c = col; c < col + width; c++) {
+        for (let r = row; r < row + height; r++) {
+          response.push(water.get([c.mod(SIZE), r.mod(SIZE)]));
+        }
+      }
+      res.json(response);
+    },
   };
 }

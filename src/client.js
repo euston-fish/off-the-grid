@@ -1,6 +1,7 @@
-import BlockManager from './BlockManager.js';
 import draw from './draw.js';
 import { onActiveChanged, initializeToolbar, Instruction, getActiveInstructions } from './Instruction.js';
+import LayerManager from './LayerManager.js';
+import { add, sub, pixelToWorld } from './shared.js';
 
 export default (function (DEBUG) {
   /* global io */
@@ -10,9 +11,10 @@ export default (function (DEBUG) {
       window['debugParams'] = [];
     }
 
-    let socket;
+    let terrain = new LayerManager('/terrain');
+    let water = new LayerManager('/water');
 
-    let blockManager = new BlockManager();
+    let socket;
 
     let bind = () => {
       socket.on('start', () => {
@@ -35,30 +37,25 @@ export default (function (DEBUG) {
     };
 
     socket = io({ upgrade: false, transports: ['websocket'] });
-    let canvas = document.getElementById('c');
-    let ctx = canvas.getContext('2d');
-    let resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
 
     let viewport_offset = [0, 0];
     let prev_mouse_location = null;
     let mouse_location = [-1, -1];
     let show_hover = false;
 
-    let repaint = () => draw(
-      ctx,
-      canvas,
-      viewport_offset,
-      blockManager,
-      mouse_location,
-      show_hover
-    );
-    blockManager.addEventListener('update',
-      () => window.requestAnimationFrame(repaint));
+    let canvas = document.getElementById('c');
+    let ctx = canvas.getContext('2d');
+    let resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let origin = pixelToWorld(viewport_offset, [0, 0]);
+      let size = sub(pixelToWorld(viewport_offset, [canvas.width, canvas.height]), origin);
+      terrain.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
+      water.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
     canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
     canvas.addEventListener('mouseup', () => prev_mouse_location = null);
@@ -68,7 +65,11 @@ export default (function (DEBUG) {
         let delta = [event.x, event.y].sub(prev_mouse_location);
         viewport_offset = viewport_offset.sub(delta);
         prev_mouse_location = mouse_location;
-        viewport_offset = viewport_offset.map(c => Math.max(c, 0));
+
+        let origin = pixelToWorld(viewport_offset, [0, 0]);
+        let size = sub(pixelToWorld(viewport_offset, [canvas.width, canvas.height]), origin);
+        terrain.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
+        water.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
       }
       window.requestAnimationFrame(repaint);
     });
@@ -80,13 +81,31 @@ export default (function (DEBUG) {
       show_hover = activeButt != null;
     });
 
+
     setInterval(() => {
       if (getActiveInstructions().length < 5) {
         Instruction.randomInstruction().addToToolbar();
       }
     }, 5000);
 
+    let repaint = () => draw(
+      ctx,
+      canvas,
+      viewport_offset,
+      terrain,
+      water,
+      mouse_location,
+      show_hover
+    );
+
+    let reload = () => {
+      terrain.update().then(() => console.log(terrain)).then(repaint);
+      water.update().then(() => console.log(terrain)).then(repaint);
+      setTimeout(reload, 1000);
+    };
+
+    reload();
+
     bind();
-    repaint();
   }, false);
 });

@@ -1,6 +1,4 @@
-import { W, pixelToWorld, worldToPixel } from './shared.js';
-import { scale_over_range } from './shared.js';
-import Block from './Block.js';
+import { W, pixelToWorld, worldToPixel, scale_over_range } from './shared.js';
 
 /* global DEBUG */
 
@@ -26,20 +24,18 @@ let env_to_color = (height, water) => {
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
 
-const draw = (ctx, canvas, viewport_offset, blockManager, cursor_location, show_hover) => {
+const draw = (ctx, canvas, viewport_offset, terrain, water, cursor_location, show_hover) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let [cs, rs] = pixelToWorld(viewport_offset, [0, 0]);
   let [ce, re] = pixelToWorld(viewport_offset, [canvas.width, canvas.height]);
   let [cx, cy] = pixelToWorld(viewport_offset, cursor_location);
   for (let c = cs; c <= ce; c++) {
     for (let r = rs; r <= re; r++) {
-      let block = blockManager.get(Block.worldToBlock([c, r]));
-      let internalCoord = block.coordFromWorld([c, r]);
-      let waterHeight = block.water.get(internalCoord);
-      let height = block.terrain.get(internalCoord);
+      let height = terrain.get([c, r]);
+      let waterHeight = water.get([c, r]);
       let params = {
-        'water': waterHeight,
-        'terrain': height
+        'water': waterHeight || NaN,
+        'terrain': height || NaN
       };
       let [px, py] = worldToPixel(viewport_offset, [c, r]);
       ctx.fillStyle = env_to_color(height, waterHeight);

@@ -6,8 +6,7 @@ SOURCES=src/Array.js \
         src/Number.js \
         tmp/constants.js \
         src/Lens.js \
-        src/Block.js \
-        src/BlockManager.js \
+        src/LayerManager.js \
         tmp/game.js \
         src/Game.js \
         src/shared.js \

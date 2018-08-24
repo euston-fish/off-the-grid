@@ -14,6 +14,7 @@ export const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 export const min = (arr) => arr.reduce((a, b) => a < b ? a : b);
 export const max = (arr) => arr.reduce((a, b) => a > b ? a : b);
 export const randRound = (val) => Math.floor(val) + (Math.random() < val - Math.floor(val));
+export const within = ([c, r], [x, y], [s, t]) => x <= c && c < s && y <= r && r < t;
 // take a world coordinate, and give the pixel of its upper-left corner
 export const worldToPixel = (viewport_offset, world) => world.scale(W).sub(viewport_offset);
 // take a pixel coordinate, and give which world coordinate it's within
