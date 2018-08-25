@@ -8,11 +8,19 @@ export default function() {
   let terrain = game.terrain;
   let water = game.water;
 
-  console.log('Generating...');
-  let start = new Date();
-  for (let i = 0; i < 500; i++) game.tick();
-  let end = new Date();
-  console.log('initial generation time: ' + (end - start));
+  let cooperate = (iter_count, callback) => {
+    setTimeout(() => {
+      let start = new Date();
+      for (let i = 0; i < 10; i++) game.tick();
+      let end = new Date();
+      console.log('Time for 10 generations: ' + (end - start) + 'ms');
+      if (iter_count > 0) {
+        cooperate(iter_count - 10, callback);
+      } else {
+        callback();
+      }
+    }, 100);
+  };
 
   let tick = () => {
     let start = new Date();
@@ -21,7 +29,7 @@ export default function() {
     console.log('tick time: ' + (end - start));
     setTimeout(tick, 1000);
   };
-  tick();
+  cooperate(500, tick);
 
   return {
     'io': (socket) => {
