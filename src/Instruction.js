@@ -49,11 +49,11 @@ Instruction.prototype.remove = function() {
 
 Instruction.prototype.placed = function() {
   this.className = 'instruction placed';
-}
+};
 
-Instruction.prototype.canApplyTo = function({'water': water, 'terrain': terrain}) {
+Instruction.prototype.canApplyTo = function({'water': water}) {
   return water < 0;
-}
+};
 
 const TYPES = [
   'THingness',
@@ -70,7 +70,8 @@ Instruction.randomInstruction = () => {
     Math.random());
 };
 
-Instruction.fromCode = (code) => {
+Instruction.fromCodeAndIntensity = (code, intensity) => {
   let type = TYPES[code];
-  let instruction = new Instruction(type, code, Math.random());
-}
+  let instruction = new Instruction(type, code, intensity);
+  return instruction;
+};

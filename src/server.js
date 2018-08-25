@@ -48,7 +48,7 @@ export default function() {
     },
     'place_instruction/:x/:y/:type': (req, res) => {
       let [x, y, type] = ['x', 'y', 'type'].map(a => parseInt(req['params'][a]));
-      console.log(`Placing ${type} at ${x},${y}`)
+      console.log(`Placing ${type} at ${x},${y}`);
       res.json({ ok: 'sick' });
     },
   };

@@ -59,7 +59,7 @@ export default (function (DEBUG) {
     resize();
 
     canvas.addEventListener('mousedown', (event) => {
-      prev_mouse_location = [event.x, event.y]
+      prev_mouse_location = [event.x, event.y];
       click_start_location = prev_mouse_location;
     });
     canvas.addEventListener('mouseup', () => {
@@ -70,8 +70,8 @@ export default (function (DEBUG) {
         let placed_instruction = active_instruction;
         active_instruction = null;
         fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}`)
-          .then(response => response.json())
-          .then(json => placed_instruction.remove());
+          // .then(response => response.json())
+          .then(() => placed_instruction.remove());
       }
       prev_mouse_location = null;
     });

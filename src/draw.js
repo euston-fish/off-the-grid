@@ -25,13 +25,13 @@ let env_to_color = (height, water) => {
 };
 
 const draw = (
-    ctx,
-    canvas,
-    viewport_offset,
-    terrain,
-    water,
-    cursor_location,
-    active_instruction) => {
+  ctx,
+  canvas,
+  viewport_offset,
+  terrain,
+  water,
+  cursor_location,
+  active_instruction) => {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let [cs, rs] = pixelToWorld(viewport_offset, [0, 0]);
