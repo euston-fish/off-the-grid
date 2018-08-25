@@ -43,7 +43,7 @@ Instruction.prototype.addToToolbar = function() {
 
 Instruction.prototype.remove = function() {
   toolbar.removeChild(this.node);
-  let index = buttons.indexOf(this.node);
+  let index = buttons.indexOf(this);
   if (index > -1) {
     buttons.splice(index, 1);
   }
@@ -58,10 +58,8 @@ Instruction.prototype.canApplyTo = function({'water': water}) {
 };
 
 const TYPES = [
-  'THingness',
-  'Stuffyness',
-  'Moredoodles',
-  'Deadliness',
+  'Water',
+  'Grow',
 ];
 
 Instruction.randomInstruction = () => {

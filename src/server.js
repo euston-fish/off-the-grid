@@ -8,6 +8,12 @@ export default function() {
   let terrain = game.terrain;
   let water = game.water;
 
+  console.log('Generating...');
+  let start = new Date();
+  for (let i = 0; i < 500; i++) game.tick();
+  let end = new Date();
+  console.log('initial generation time: ' + (end - start));
+
   let tick = () => {
     let start = new Date();
     game.tick();
@@ -51,9 +57,8 @@ export default function() {
       let [x, y, code] = ['x', 'y', 'code'].map(a => parseInt(req['params'][a]));
       let impact = parseFloat(req['params']['impact']);
       let instruction = Instruction.fromCodeAndIntensity(code, impact);
-      console.log(instruction);
       console.log(`Placing ${code} at ${x},${y}`);
-      game.addInstruction(instruction);
+      game.addInstruction([x, y], instruction);
       res.json({ ok: 'sick' });
     },
   };

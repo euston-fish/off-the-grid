@@ -92,10 +92,18 @@ impl Game {
     }
   }
 
-  fn add_instruction(&self, code: i8, intensity: f32) {
+  fn add_instruction(&mut self, coord: Coordinate, code: i8, impact: f32) {
     unsafe {
       log(code as i32);
-      logf(intensity)
+      logf(impact)
+    }
+    match code {
+      // Water
+      0 =>
+        self.water[coord] += 60.0 * impact,
+      1 =>
+        self.terrain[coord] += 60.0 * impact,
+      _ => ()
     }
   }
 }
@@ -124,8 +132,8 @@ pub fn tick() {
 }
 
 #[no_mangle]
-pub fn add_instruction(code: i8, intensity: f32) {
-  unsafe { GAME.add_instruction(code, intensity) }
+pub fn add_instruction(x: u32, y: u32, code: i8, intensity: f32) {
+  unsafe { GAME.add_instruction(Coordinate{ c: x, r: y }, code, intensity) }
 }
 
 #[no_mangle]

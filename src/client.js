@@ -66,12 +66,14 @@ export default (function (DEBUG) {
       let dist = magnitude(sub(prev_mouse_location, click_start_location));
       if (dist < 5 && active_instruction) {
         let [x, y] = pixelToWorld(viewport_offset, prev_mouse_location);
-        active_instruction.placed();
-        let placed_instruction = active_instruction;
-        active_instruction = null;
-        fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}/${placed_instruction.impact}`)
-          // .then(response => response.json())
-          .then(() => placed_instruction.remove());
+        if (active_instruction.canApplyTo({'water': water.get([x, y]), 'terrain': terrain.get([x, y])})) {
+          active_instruction.placed();
+          let placed_instruction = active_instruction;
+          active_instruction = null;
+          fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}/${placed_instruction.impact}`)
+            // .then(response => response.json())
+            .then(() => placed_instruction.remove());
+        }
       }
       prev_mouse_location = null;
     });

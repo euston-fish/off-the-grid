@@ -27,8 +27,12 @@ Game.prototype.tick = function() {
   this.game.exports['tick']();
 };
 
-Game.prototype.addInstruction = function(instruction) {
-  this.game.exports['add_instruction'](instruction.code, instruction.impact);
+Game.prototype.addInstruction = function(coord, instruction) {
+  this.game.exports['add_instruction'](
+    coord[0],
+    coord[1],
+    instruction.code,
+    instruction.impact);
 };
 
 export default Game;
