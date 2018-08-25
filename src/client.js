@@ -69,7 +69,7 @@ export default (function (DEBUG) {
         active_instruction.placed();
         let placed_instruction = active_instruction;
         active_instruction = null;
-        fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}`)
+        fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}/${placed_instruction.impact}`)
           // .then(response => response.json())
           .then(() => placed_instruction.remove());
       }

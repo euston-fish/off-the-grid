@@ -16,18 +16,20 @@ export const Instruction = function(name, code, impact) {
   this.name = name;
   this.code = code;
   this.impact = impact;
-  let node = document.createElement('div');
-  node.innerText = this.name;
-  node.className = 'instruction';
-  let javascriptIsDumb = this;
-  node.addEventListener('click', () => {
-    let wasActive = javascriptIsDumb.isActive;
-    buttons.forEach(butt => butt.setActive(false));
-    javascriptIsDumb.setActive(!wasActive);
-    if (onActiveChangedCallback) onActiveChangedCallback(wasActive ? null : javascriptIsDumb);
-  });
-  this.node = node;
-  buttons.push(this);
+  if (typeof document !== 'undefined') {
+    let node = document.createElement('div');
+    node.innerText = this.name;
+    node.className = 'instruction';
+    let javascriptIsDumb = this;
+    node.addEventListener('click', () => {
+      let wasActive = javascriptIsDumb.isActive;
+      buttons.forEach(butt => butt.setActive(false));
+      javascriptIsDumb.setActive(!wasActive);
+      if (onActiveChangedCallback) onActiveChangedCallback(wasActive ? null : javascriptIsDumb);
+    });
+    this.node = node;
+    buttons.push(this);
+  }
 };
 
 Instruction.prototype.setActive = function(isActive) {
@@ -70,8 +72,8 @@ Instruction.randomInstruction = () => {
     Math.random());
 };
 
-Instruction.fromCodeAndIntensity = (code, intensity) => {
+Instruction.fromCodeAndIntensity = (code, impact) => {
   let type = TYPES[code];
-  let instruction = new Instruction(type, code, intensity);
+  let instruction = new Instruction(type, code, impact);
   return instruction;
 };

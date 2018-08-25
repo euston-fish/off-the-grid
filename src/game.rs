@@ -91,6 +91,13 @@ impl Game {
       *water = unsafe { random() as f32 } * 15.0 - 5.0;
     }
   }
+
+  fn add_instruction(&self, code: i8, intensity: f32) {
+    unsafe {
+      log(code as i32);
+      logf(intensity)
+    }
+  }
 }
 
 static mut GAME: Game =
@@ -114,6 +121,11 @@ pub fn init() {
 #[no_mangle]
 pub fn tick() {
   unsafe { GAME.tick(); }
+}
+
+#[no_mangle]
+pub fn add_instruction(code: i8, intensity: f32) {
+  unsafe { GAME.add_instruction(code, intensity) }
 }
 
 #[no_mangle]

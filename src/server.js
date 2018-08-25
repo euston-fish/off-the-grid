@@ -1,4 +1,5 @@
 import { SIZE } from '../tmp/constants.js';
+import { Instruction } from './Instruction.js';
 import Game from './Game.js';
 
 export default function() {
@@ -46,9 +47,13 @@ export default function() {
       }
       res.json(response);
     },
-    'place_instruction/:x/:y/:type': (req, res) => {
-      let [x, y, type] = ['x', 'y', 'type'].map(a => parseInt(req['params'][a]));
-      console.log(`Placing ${type} at ${x},${y}`);
+    'place_instruction/:x/:y/:code/:impact': (req, res) => {
+      let [x, y, code] = ['x', 'y', 'code'].map(a => parseInt(req['params'][a]));
+      let impact = parseFloat(req['params']['impact']);
+      let instruction = Instruction.fromCodeAndIntensity(code, impact);
+      console.log(instruction);
+      console.log(`Placing ${code} at ${x},${y}`);
+      game.addInstruction(instruction);
       res.json({ ok: 'sick' });
     },
   };
