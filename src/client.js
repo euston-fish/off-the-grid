@@ -1,7 +1,7 @@
 import draw from './draw.js';
 import { onActiveChanged, initializeToolbar, Instruction, getActiveInstructions } from './Instruction.js';
 import LayerManager from './LayerManager.js';
-import { add, sub, pixelToWorld } from './shared.js';
+import { add, sub, pixelToWorld, magnitude } from './shared.js';
 
 export default (function (DEBUG) {
   /* global io */
@@ -39,9 +39,10 @@ export default (function (DEBUG) {
     socket = io({ upgrade: false, transports: ['websocket'] });
 
     let viewport_offset = [0, 0];
+    let click_start_location = null;
     let prev_mouse_location = null;
     let mouse_location = [-1, -1];
-    let show_hover = false;
+    let active_instruction = null;
 
     let canvas = document.getElementById('c');
     let ctx = canvas.getContext('2d');
@@ -57,8 +58,23 @@ export default (function (DEBUG) {
     window.addEventListener('resize', resize);
     resize();
 
-    canvas.addEventListener('mousedown', (event) => prev_mouse_location = [event.x, event.y]);
-    canvas.addEventListener('mouseup', () => prev_mouse_location = null);
+    canvas.addEventListener('mousedown', (event) => {
+      prev_mouse_location = [event.x, event.y]
+      click_start_location = prev_mouse_location;
+    });
+    canvas.addEventListener('mouseup', () => {
+      let dist = magnitude(sub(prev_mouse_location, click_start_location));
+      if (dist < 5 && active_instruction) {
+        let [x, y] = pixelToWorld(viewport_offset, prev_mouse_location);
+        active_instruction.placed();
+        let placed_instruction = active_instruction;
+        active_instruction = null;
+        fetch(`/place_instruction/${x}/${y}/${placed_instruction.code}`)
+          .then(response => response.json())
+          .then(json => placed_instruction.remove());
+      }
+      prev_mouse_location = null;
+    });
     canvas.addEventListener('mousemove', (event) => {
       mouse_location = [event.x, event.y];
       if (prev_mouse_location) {
@@ -75,12 +91,9 @@ export default (function (DEBUG) {
     });
 
     initializeToolbar('toolbar');
-    new Instruction('foobar').addToToolbar();
-    new Instruction('barfoo').addToToolbar();
     onActiveChanged((activeButt) => {
-      show_hover = activeButt != null;
+      active_instruction = activeButt;
     });
-
 
     setInterval(() => {
       if (getActiveInstructions().length < 5) {
@@ -95,7 +108,7 @@ export default (function (DEBUG) {
       terrain,
       water,
       mouse_location,
-      show_hover
+      active_instruction
     );
 
     let reload = () => {

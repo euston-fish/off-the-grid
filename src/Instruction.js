@@ -12,8 +12,9 @@ export const onActiveChanged = (callback) => onActiveChangedCallback = callback;
 /**
  * @constructor
  */
-export const Instruction = function(name, impact) {
+export const Instruction = function(name, code, impact) {
   this.name = name;
+  this.code = code;
   this.impact = impact;
   let node = document.createElement('div');
   node.innerText = this.name;
@@ -46,6 +47,14 @@ Instruction.prototype.remove = function() {
   }
 };
 
+Instruction.prototype.placed = function() {
+  this.className = 'instruction placed';
+}
+
+Instruction.prototype.canApplyTo = function({'water': water, 'terrain': terrain}) {
+  return water < 0;
+}
+
 const TYPES = [
   'THingness',
   'Stuffyness',
@@ -54,7 +63,14 @@ const TYPES = [
 ];
 
 Instruction.randomInstruction = () => {
+  let idx = Math.floor(Math.random() * TYPES.length);
   return new Instruction(
-    TYPES[Math.floor(Math.random() * TYPES.length)],
+    TYPES[idx],
+    idx,
     Math.random());
 };
+
+Instruction.fromCode = (code) => {
+  let type = TYPES[code];
+  let instruction = new Instruction(type, code, Math.random());
+}

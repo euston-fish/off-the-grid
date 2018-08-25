@@ -24,7 +24,15 @@ let env_to_color = (height, water) => {
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
 
-const draw = (ctx, canvas, viewport_offset, terrain, water, cursor_location, show_hover) => {
+const draw = (
+    ctx,
+    canvas,
+    viewport_offset,
+    terrain,
+    water,
+    cursor_location,
+    active_instruction) => {
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let [cs, rs] = pixelToWorld(viewport_offset, [0, 0]);
   let [ce, re] = pixelToWorld(viewport_offset, [canvas.width, canvas.height]);
@@ -40,9 +48,15 @@ const draw = (ctx, canvas, viewport_offset, terrain, water, cursor_location, sho
       let [px, py] = worldToPixel(viewport_offset, [c, r]);
       ctx.fillStyle = env_to_color(height, waterHeight);
       ctx.fillRect(px, py, W, W);
-      if (show_hover && c == cx && r == cy) {
-        ctx.fillStyle = 'rgba(255,255,255,30%)';
-        ctx.fillRect(px, py, W, W);
+      if (active_instruction && c == cx && r == cy) {
+        if (active_instruction.canApplyTo(params)) {
+          ctx.fillStyle = 'rgba(255,255,255,30%)';
+          ctx.fillRect(px, py, W, W);
+        } else {
+          ctx.strokeStyle = 'rgba(255,255,255,30%)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px, py, W - 1, W - 1);
+        }
       }
       if (DEBUG) {
         ctx.font = '12px sans-serif';
