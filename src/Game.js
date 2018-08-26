@@ -21,6 +21,7 @@ function Game() {
   console.log('address: ' + this.address);
   this.terrain = new Lens(new Float32Array(memory.buffer, this.address, SIZE * SIZE), [SIZE, SIZE]);
   this.water = new Lens(new Float32Array(memory.buffer, this.address + SIZE * SIZE * 4, SIZE * SIZE), [SIZE, SIZE]);
+  // this.vegetation = new Lens(new Float32Array(memory.buffer, this.address + SIZE * SIZE * 8, SIZE * SIZE), [SIZE, SIZE]);
 }
 
 Game.prototype.tick = function() {

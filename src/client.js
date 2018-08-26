@@ -13,6 +13,7 @@ export default (function (DEBUG) {
 
     let terrain = new LayerManager('/terrain');
     let water = new LayerManager('/water');
+    let vegetation = new LayerManager('/vegetation');
 
     let socket;
 
@@ -54,6 +55,7 @@ export default (function (DEBUG) {
       let size = sub(pixelToWorld(viewport_offset, [canvas.width, canvas.height]), origin);
       terrain.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
       water.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
+      vegetation.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
     };
     window.addEventListener('resize', resize);
     resize();
@@ -66,7 +68,7 @@ export default (function (DEBUG) {
       let dist = magnitude(sub(prev_mouse_location, click_start_location));
       if (dist < 5 && active_instruction) {
         let [x, y] = pixelToWorld(viewport_offset, prev_mouse_location);
-        if (active_instruction.canApplyTo({'water': water.get([x, y]), 'terrain': terrain.get([x, y])})) {
+        if (active_instruction.canApplyTo({'vegetation': vegetation.get([x, y]), 'water': water.get([x, y]), 'terrain': terrain.get([x, y])})) {
           active_instruction.placed();
           let placed_instruction = active_instruction;
           active_instruction = null;
@@ -88,6 +90,7 @@ export default (function (DEBUG) {
         let size = sub(pixelToWorld(viewport_offset, [canvas.width, canvas.height]), origin);
         terrain.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
         water.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
+        vegetation.setRegion(sub(origin, [5, 5]), add(size, [10, 10]));
       }
       window.requestAnimationFrame(repaint);
     });
@@ -109,13 +112,15 @@ export default (function (DEBUG) {
       viewport_offset,
       terrain,
       water,
+      vegetation,
       mouse_location,
       active_instruction
     );
 
     let reload = () => {
-      terrain.update().then(() => console.log(terrain)).then(repaint);
-      water.update().then(() => console.log(terrain)).then(repaint);
+      terrain.update().then(repaint);
+      water.update().then(repaint);
+      vegetation.update().then(repaint);
       setTimeout(reload, 1000);
     };
 

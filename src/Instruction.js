@@ -60,6 +60,7 @@ Instruction.prototype.canApplyTo = function({'water': water}) {
 const TYPES = [
   'Water',
   'Grow',
+  'Plant',
 ];
 
 Instruction.randomInstruction = () => {

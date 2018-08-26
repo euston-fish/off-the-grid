@@ -7,6 +7,7 @@ export default function() {
 
   let terrain = game.terrain;
   let water = game.water;
+  let vegetation = game.vegetation;
 
   let cooperate = (iter_count, callback) => {
     setTimeout(() => {
@@ -29,7 +30,7 @@ export default function() {
     console.log('tick time: ' + (end - start));
     setTimeout(tick, 1000);
   };
-  cooperate(500, tick);
+  cooperate(5, tick);
 
   return {
     'io': (socket) => {
@@ -40,6 +41,7 @@ export default function() {
       console.log('Connected: ' + socket.id);
     },
 
+    // TODO Merge these all into one request
     'terrain/:col/:row/:width/:height': (req, res) => {
       let [col, row, width, height] = ['col', 'row', 'width', 'height'].map(a => parseInt(req['params'][a]));
       let response = [];
@@ -57,6 +59,16 @@ export default function() {
       for (let c = col; c < col + width; c++) {
         for (let r = row; r < row + height; r++) {
           response.push(water.get([c.mod(SIZE), r.mod(SIZE)]));
+        }
+      }
+      res.json(response);
+    },
+    'vegetation/:col/:row/:width/:height': (req, res) => {
+      let [col, row, width, height] = ['col', 'row', 'width', 'height'].map(a => parseInt(req['params'][a]));
+      let response = [];
+      for (let c = col; c < col + width; c++) {
+        for (let r = row; r < row + height; r++) {
+          response.push(vegetation.get([c.mod(SIZE), r.mod(SIZE)]));
         }
       }
       res.json(response);

@@ -35,7 +35,8 @@ impl IndexMut<Coordinate> for Layer {
 
 struct Game {
   terrain: Layer,
-  water: Layer
+  water: Layer,
+  vegetation: Layer,
 }
 
 impl Game {
@@ -103,6 +104,8 @@ impl Game {
         self.water[coord] += 60.0 * impact,
       1 =>
         self.terrain[coord] += 60.0 * impact,
+      2 =>
+        self.vegetation[coord] += 60.0 * impact,
       _ => ()
     }
   }
@@ -111,7 +114,8 @@ impl Game {
 static mut GAME: Game =
   Game {
     terrain: Layer { values: [0.0; (SIZE * SIZE) as usize] },
-    water: Layer { values: [0.0; (SIZE * SIZE) as usize] }
+    water: Layer { values: [0.0; (SIZE * SIZE) as usize] },
+    vegetation: Layer { values: [100.0; (SIZE * SIZE) as usize] },
   };
 static mut NOISE: Noise =
   Noise {
@@ -141,7 +145,7 @@ pub fn address() -> u32 {
   unsafe { (&GAME as *const _) as u32 }
 }
 fn noise(x: f32, y: f32) -> f32 {
-    unsafe { NOISE.get(x, y) }
+  unsafe { NOISE.get(x, y) }
 }
 
 static GRAD3: [[i8; 3]; 12] = [

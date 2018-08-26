@@ -16,13 +16,13 @@ let env_to_color = (height, water) => {
     height = (height - 220) / 35;
     return 'hsl(35,48%,' + Math.floor(scale_over_range(height, 29, 15)) + '%)';
   }
-  if (height > 110) {
-    height = (height - 110) / 110;
-    return 'hsl(87,48%,' + Math.floor(scale_over_range(height, 40, 15)) + '%)';
-  }
   height = height / 110;
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
+
+let vege_color = (height) => {
+  return 'hsla(131, 70%, 31%, ' + Math.floor(height / 255) + '%)';
+}
 
 const draw = (
   ctx,
@@ -30,6 +30,7 @@ const draw = (
   viewport_offset,
   terrain,
   water,
+  vegetation,
   cursor_location,
   active_instruction) => {
 
@@ -41,13 +42,19 @@ const draw = (
     for (let r = rs; r <= re; r++) {
       let height = terrain.get([c, r]);
       let waterHeight = water.get([c, r]);
+      let vegetation_height = vegetation.get([c, r]);
       let params = {
         'water': waterHeight || NaN,
-        'terrain': height || NaN
+        'terrain': height || NaN,
+        'vegetation': vegetation_height ||NaN,
       };
       let [px, py] = worldToPixel(viewport_offset, [c, r]);
       ctx.fillStyle = env_to_color(height, waterHeight);
       ctx.fillRect(px, py, W, W);
+      if (vegetation_height > 0) {
+        ctx.fillStyle = vege_color(vegetation_height);
+        ctx.fillRect(px, py, W, W);
+      }
       if (active_instruction && c == cx && r == cy) {
         if (active_instruction.canApplyTo(params)) {
           ctx.fillStyle = 'rgba(255,255,255,30%)';
