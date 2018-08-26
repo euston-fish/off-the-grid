@@ -30,7 +30,7 @@ export default function() {
     console.log('tick time: ' + (end - start));
     setTimeout(tick, 1000);
   };
-  cooperate(5, tick);
+  cooperate(0, tick);
 
   return {
     'io': (socket) => {
@@ -73,6 +73,7 @@ export default function() {
       }
       res.json(response);
     },
+
     'place_instruction/:x/:y/:code/:impact': (req, res) => {
       let [x, y, code] = ['x', 'y', 'code'].map(a => parseInt(req['params'][a]));
       let impact = parseFloat(req['params']['impact']);
