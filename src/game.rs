@@ -116,7 +116,7 @@ impl Game {
             vege -= 15.0;
           }
         }
-        self.vegetation[c] = vege.max(255.0).min(0.0);
+        self.vegetation[c] = vege.max(0.0).min(255.0);
       }
     }
   }
