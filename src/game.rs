@@ -28,31 +28,37 @@ impl Coordinate {
   }
 }
 
-struct Layer {
-  values: [f32; (SIZE * SIZE) as usize]
+struct Layer<T> {
+  values: [T; (SIZE * SIZE) as usize]
 }
 
-impl Index<Coordinate> for Layer {
-  type Output = f32;
+impl<T> Index<Coordinate> for Layer<T> {
+  type Output = T;
 
-  fn index(&self, index: Coordinate) -> &f32 {
+  fn index(&self, index: Coordinate) -> &T {
     let Coordinate { c, r } = index;
     &self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
   }
 }
 
-impl IndexMut<Coordinate> for Layer {
-  fn index_mut(&mut self, index: Coordinate) -> &mut f32 {
+impl<T> IndexMut<Coordinate> for Layer<T> {
+  fn index_mut(&mut self, index: Coordinate) -> &mut T {
     let Coordinate { c, r } = index;
     &mut self.values[((c % SIZE) * SIZE + (r % SIZE)) as usize]
   }
 }
 
+#[derive(Copy, Clone)]
+struct VegeType {
+  preferred_height: f32,
+  preferred_moisture: f32,
+}
+
 struct Game {
-  terrain: Layer,
-  water: Layer,
-  vegetation: Layer,
-  vegetation_type: Layer,
+  terrain: Layer<f32>,
+  water: Layer<f32>,
+  vegetation: Layer<f32>,
+  vegetation_type: Layer<VegeType>,
 }
 
 impl Game {
@@ -90,32 +96,53 @@ impl Game {
         self.consider_pair(a, c);
        }
     }
-    return
     for c in 0..SIZE {
       for r in 0..SIZE {
         let c = Coordinate { c, r };
         let mut vege = self.vegetation[c];
-        let vege_type = self.vegetation_type[c];
+
         let above = self.vegetation[c.above()];
         let below = self.vegetation[c.below()];
         let left = self.vegetation[c.left()];
         let right = self.vegetation[c.right()];
         let mut alive: i8 = 0;
-        let threshold = 128.0;
+        let threshold = (vege * 1.1).max(100.0);
         if above > threshold { alive += 1; }
         if below > threshold { alive += 1; }
         if left > threshold { alive += 1; }
         if right > threshold { alive += 1; }
+
+        if vege == 0.0 {
+          let live = unsafe { random() < 0.2 };
+          if live {
+            vege = unsafe { (random() * 155.0 + 100.0) as f32 }
+          }
+        }
+
+        let die = unsafe { random() < 0.5 };
         if alive == 4 {
           vege += 20.0;
         } else if alive == 3 {
           vege += 10.0;
         } else if alive <= 1 {
-          let die = unsafe { random() < 0.5 };
           if die {
-            vege -= 15.0;
+          vege -= 15.0;
           }
         }
+        let vege_type = self.vegetation_type[c];
+        let water_level = self.water[c];
+        let height = self.terrain[c];
+        if (vege_type.preferred_moisture - water_level).abs() > 40.0 {
+          vege -= 5.0;
+        } else {
+          vege += 3.0;
+        }
+        if (vege_type.preferred_height - height).abs() > 40.0 {
+          vege -= 5.0;
+        } else {
+          vege += 3.0;
+        }
+
         self.vegetation[c] = vege.max(0.0).min(255.0);
       }
     }
@@ -137,10 +164,11 @@ impl Game {
       *water = unsafe { random() as f32 } * 15.0 - 5.0;
     }
     for mut vege in self.vegetation.values.iter_mut() {
-      *vege = unsafe { random() as f32 } * 255.0;
+      *vege = 255.0; // unsafe { random() as f32 } * 255.0;
     }
     for mut vege in self.vegetation_type.values.iter_mut() {
-      *vege = unsafe { random() as f32 } * 255.0;
+      vege.preferred_moisture = unsafe { random() as f32 } * 255.0;
+      vege.preferred_height = unsafe { random() as f32 } * 255.0;
     }
   }
 
@@ -167,7 +195,9 @@ static mut GAME: Game =
     terrain: Layer { values: [0.0; (SIZE * SIZE) as usize] },
     water: Layer { values: [0.0; (SIZE * SIZE) as usize] },
     vegetation: Layer { values: [0.0; (SIZE * SIZE) as usize] },
-    vegetation_type: Layer { values: [0.0; (SIZE * SIZE) as usize] },
+    vegetation_type: Layer { values: [VegeType{
+      preferred_height: 0.0,
+      preferred_moisture: 0.0 }; (SIZE * SIZE) as usize] },
   };
 static mut NOISE: Noise =
   Noise {
