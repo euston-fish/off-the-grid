@@ -8,6 +8,10 @@ extern {
   fn logf(v: f32);
 }
 
+fn randf32() -> f32 {
+  return unsafe { random() as f32 }
+}
+
 #[derive(Clone,Copy)]
 struct Coordinate {
   c: u32,
@@ -21,6 +25,7 @@ enum Direction {
 
 impl Direction {
   fn iter() -> Iter<'static, Direction> {
+    // TODO Maybe make eight directions?
     static DIRECTIONS: [Direction; 4] = [
       Direction::North,
       Direction::East,
@@ -28,6 +33,16 @@ impl Direction {
       Direction::West
     ];
     DIRECTIONS.into_iter()
+  }
+
+  fn random() -> Direction {
+    match (randf32() * 4.0) as i8 {
+      0 => Direction::North,
+      1 => Direction::East,
+      2 => Direction::South,
+      3 => Direction::West,
+      _ => Direction::West,
+    }
   }
 }
 
@@ -85,6 +100,7 @@ impl<T> IndexMut<Coordinate> for Layer<T> {
 
 #[derive(Copy, Clone)]
 struct VegeType {
+  age: i32,
   preferred_height: f32,
   preferred_moisture: f32,
 }
@@ -94,6 +110,7 @@ struct Game {
   water: Layer<f32>,
   vegetation: Layer<f32>,
   vegetation_type: Layer<VegeType>,
+  vegetation_average: f32,
 }
 
 impl Game {
@@ -131,51 +148,48 @@ impl Game {
         self.consider_pair(a, c);
        }
     }
+    let previous_vege_average: f32 = self.vegetation_average;
+    self.vegetation_average = 0.0;
     for c in 0..SIZE {
       for r in 0..SIZE {
         let c = Coordinate { c, r };
         let mut vege = self.vegetation[c];
-
-        let mut alive: i8 = 0;
-        let threshold = (vege * 1.1).max(100.0);
-        for n in c.neighbours_iter() {
-          if self.vegetation[n] > threshold { alive += 1; }
-        }
-
-        if vege == 0.0 {
-          let live = unsafe { random() < 0.2 };
-          if live {
-            vege = unsafe { (random() * 155.0 + 100.0) as f32 }
-          }
-        }
-
-        let die = unsafe { random() < 0.5 };
-        if alive == 4 {
-          vege += 20.0;
-        } else if alive == 3 {
-          vege += 10.0;
-        } else if alive <= 1 {
-          if die {
-          vege -= 15.0;
-          }
-        }
-        let vege_type = self.vegetation_type[c];
-        let water_level = self.water[c];
+        let mut vege_type = self.vegetation_type[c];
         let height = self.terrain[c];
-        if (vege_type.preferred_moisture - water_level).abs() > 40.0 {
-          vege -= 5.0;
-        } else {
-          vege += 3.0;
-        }
-        if (vege_type.preferred_height - height).abs() > 40.0 {
-          vege -= 5.0;
-        } else {
-          vege += 3.0;
-        }
+        let water_level = self.water[c];
 
-        self.vegetation[c] = vege.max(0.0).min(255.0);
+        if vege_type.age < 200 {
+          if (vege_type.preferred_height - height).abs() < 40.0 {
+            if randf32() < 0.2 {
+              let mut neighbour = c.follow(Direction::random());
+              let mut max_vege = self.vegetation[neighbour];
+              for n in c.neighbours_iter() {
+                if self.vegetation[n] > max_vege {
+                  max_vege = self.vegetation[n];
+                  neighbour = n;
+                }
+              }
+              if self.vegetation[neighbour] <= 3.0 {
+                self.vegetation_type[neighbour] = vege_type;
+              }
+              self.vegetation[neighbour] += 10.0;
+            }
+          } else {
+            vege -= 5.0;
+          }
+        }
+        vege_type.age += 1;
+        self.vegetation_type[c] = vege_type;
+
+        if vege_type.age >= 200 {
+          self.vegetation[c] = 0.0;
+        } else {
+          self.vegetation[c] = vege.max(0.0).min(255.0);
+        }
+        self.vegetation_average += self.vegetation[c];
       }
     }
+    self.vegetation_average /= (SIZE * SIZE) as f32;
   }
 
   fn init(&mut self) {
@@ -226,8 +240,10 @@ static mut GAME: Game =
     water: Layer { values: [0.0; (SIZE * SIZE) as usize] },
     vegetation: Layer { values: [0.0; (SIZE * SIZE) as usize] },
     vegetation_type: Layer { values: [VegeType{
+      age: 0,
       preferred_height: 0.0,
       preferred_moisture: 0.0 }; (SIZE * SIZE) as usize] },
+    vegetation_average: 0.0,
   };
 static mut NOISE: Noise =
   Noise {
