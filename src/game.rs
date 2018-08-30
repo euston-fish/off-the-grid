@@ -1,5 +1,6 @@
 use std::f32;
 use std::ops::{Index,IndexMut};
+use std::slice::Iter;
 
 extern {
   fn random() -> f64;
@@ -13,18 +14,52 @@ struct Coordinate {
   r: u32
 }
 
+#[derive(Clone,Copy)]
+enum Direction {
+  North, East, South, West
+}
+
+impl Direction {
+  fn iter() -> Iter<'static, Direction> {
+    static DIRECTIONS: [Direction; 4] = [
+      Direction::North,
+      Direction::East,
+      Direction::South,
+      Direction::West
+    ];
+    DIRECTIONS.into_iter()
+  }
+}
+
+struct IterCoordinateNeighbours {
+  center: Coordinate,
+  direction_iter: Iter<'static, Direction>
+}
+
+impl Iterator for IterCoordinateNeighbours {
+  type Item = Coordinate;
+
+  fn next(&mut self) -> Option<Self::Item> {
+    self.direction_iter.next().map(|direction| self.center.follow(*direction))
+  }
+}
+
 impl Coordinate {
-  fn above(self) -> Coordinate {
-    Coordinate { c: self.c, r: self.r - 1 }
+  fn follow(&self, direction: Direction) -> Coordinate {
+    let (dc, dr) = match direction {
+      Direction::North => (0, (0 as u32).wrapping_sub(1)),
+      Direction::East => (1, 0),
+      Direction::South => (0, 1),
+      Direction::West => ((0 as u32).wrapping_sub(1), 0),
+    };
+    Coordinate { c: self.c + dc, r: self.r + dr }
   }
-  fn right(self) -> Coordinate {
-    Coordinate { c: self.c + 1, r: self.r }
-  }
-  fn left(self) -> Coordinate {
-    Coordinate { c: self.c - 1, r: self.r }
-  }
-  fn below(self) -> Coordinate {
-    Coordinate { c: self.c, r: self.r + 1 }
+
+  fn neighbours_iter(&self) -> IterCoordinateNeighbours {
+    IterCoordinateNeighbours {
+      center: *self,
+      direction_iter: Direction::iter(),
+    }
   }
 }
 
@@ -101,16 +136,11 @@ impl Game {
         let c = Coordinate { c, r };
         let mut vege = self.vegetation[c];
 
-        let above = self.vegetation[c.above()];
-        let below = self.vegetation[c.below()];
-        let left = self.vegetation[c.left()];
-        let right = self.vegetation[c.right()];
         let mut alive: i8 = 0;
         let threshold = (vege * 1.1).max(100.0);
-        if above > threshold { alive += 1; }
-        if below > threshold { alive += 1; }
-        if left > threshold { alive += 1; }
-        if right > threshold { alive += 1; }
+        for n in c.neighbours_iter() {
+          if self.vegetation[n] > threshold { alive += 1; }
+        }
 
         if vege == 0.0 {
           let live = unsafe { random() < 0.2 };
