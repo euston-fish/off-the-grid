@@ -173,28 +173,27 @@ impl Game {
         let mut vege_type = self.vegetation_type[c];
         let height = self.terrain[c];
         let water_level = self.water[c];
+        let multiplier = if vege_type.age < 200 { 1.0 } else { -1.0 };
 
-        if vege_type.age < 200 {
-          if (vege_type.preferred_height - height).abs() < 30.0 {
-            if randf32() < 0.4 {
-              let mut neighbour = c.follow(Direction::random());
-              let mut max_vege = self.vegetation[neighbour];
-              for n in c.neighbours_iter() {
-                if self.vegetation[n] > max_vege  && self.vegetation[n] < vege {
-                  max_vege = self.vegetation[n];
-                  neighbour = n;
-                }
+        if (vege_type.preferred_height - height).abs() < 30.0 {
+          if randf32() < 0.4 {
+            let mut neighbour = c.follow(Direction::random());
+            let mut max_vege = self.vegetation[neighbour];
+            for n in c.neighbours_iter() {
+              if self.vegetation[n] > max_vege  && self.vegetation[n] < vege {
+                max_vege = self.vegetation[n];
+                neighbour = n;
               }
-              if self.vegetation[neighbour] <= 3.0 {
-                self.vegetation_type[neighbour] = vege_type;
-                self.vegetation_type[neighbour].age = 0;
-              }
-              self.vegetation[neighbour] += 10.0;
-              grow_count += 1;
             }
-          } else {
-            vege -= 5.0;
+            if self.vegetation[neighbour] <= 3.0 {
+              self.vegetation_type[neighbour] = vege_type;
+              self.vegetation_type[neighbour].age = 0;
+            }
+            self.vegetation[neighbour] += multiplier * 10.0;
+            grow_count += 1;
           }
+        } else {
+          vege -= 5.0;
         }
         vege_type.age += 1;
         self.vegetation_type[c] = vege_type;
