@@ -46,6 +46,21 @@ impl Direction {
   }
 }
 
+// This makes me like Rust more
+trait Towardserer<T, A> {
+  fn towards(&mut self, target: T, amount: A);
+}
+
+impl Towardserer<f32, f32> for f32 {
+  fn towards(&mut self, target: f32, amount: f32) {
+    if target < *self {
+      *self = (*self + amount).min(target);
+    } else {
+      *self = (*self - amount).min(target);
+    }
+  }
+}
+
 struct IterCoordinateNeighbours {
   center: Coordinate,
   direction_iter: Iter<'static, Direction>
@@ -150,6 +165,7 @@ impl Game {
     }
     let previous_vege_average: f32 = self.vegetation_average;
     self.vegetation_average = 0.0;
+    let mut grow_count = 0;
     for c in 0..SIZE {
       for r in 0..SIZE {
         let c = Coordinate { c, r };
@@ -159,20 +175,22 @@ impl Game {
         let water_level = self.water[c];
 
         if vege_type.age < 200 {
-          if (vege_type.preferred_height - height).abs() < 40.0 {
-            if randf32() < 0.2 {
+          if (vege_type.preferred_height - height).abs() < 30.0 {
+            if randf32() < 0.4 {
               let mut neighbour = c.follow(Direction::random());
               let mut max_vege = self.vegetation[neighbour];
               for n in c.neighbours_iter() {
-                if self.vegetation[n] > max_vege {
+                if self.vegetation[n] > max_vege  && self.vegetation[n] < vege {
                   max_vege = self.vegetation[n];
                   neighbour = n;
                 }
               }
               if self.vegetation[neighbour] <= 3.0 {
                 self.vegetation_type[neighbour] = vege_type;
+                self.vegetation_type[neighbour].age = 0;
               }
               self.vegetation[neighbour] += 10.0;
+              grow_count += 1;
             }
           } else {
             vege -= 5.0;
@@ -181,11 +199,14 @@ impl Game {
         vege_type.age += 1;
         self.vegetation_type[c] = vege_type;
 
-        if vege_type.age >= 200 {
-          self.vegetation[c] = 0.0;
-        } else {
-          self.vegetation[c] = vege.max(0.0).min(255.0);
+        if water_level > DRY_DEPTH {
+          vege -= 20.0;
         }
+
+        if vege_type.age >= 200 {
+          vege -= 10.0;
+        }
+        self.vegetation[c] = vege.max(0.0).min(255.0);
         self.vegetation_average += self.vegetation[c];
       }
     }
@@ -208,7 +229,7 @@ impl Game {
       *water = unsafe { random() as f32 } * 15.0 - 5.0;
     }
     for mut vege in self.vegetation.values.iter_mut() {
-      *vege = 255.0; // unsafe { random() as f32 } * 255.0;
+      *vege = 0.0; // unsafe { random() as f32 } * 255.0;
     }
     for mut vege in self.vegetation_type.values.iter_mut() {
       vege.preferred_moisture = unsafe { random() as f32 } * 255.0;
@@ -227,8 +248,12 @@ impl Game {
         self.water[coord] += 60.0 * impact,
       1 =>
         self.terrain[coord] += 60.0 * impact,
-      2 =>
-        self.vegetation[coord] += 60.0 * impact,
+      2 => {
+        self.vegetation[coord] += 60.0 * impact;
+        self.vegetation_type[coord].age = 0;
+        self.vegetation_type[coord].preferred_moisture.towards(self.terrain[coord], 15.0);
+        self.vegetation_type[coord].preferred_height.towards(self.water[coord], 15.0);
+      },
       _ => ()
     }
   }

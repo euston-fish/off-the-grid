@@ -20,8 +20,8 @@ let env_to_color = (height, water) => {
   return 'hsl(70,56%,' + Math.floor(scale_over_range(height, 55, 34)) + '%)';
 };
 
-let vege_color = (height) => {
-  return 'hsla(131, 70%, 31%, ' + Math.floor((height + 40) / 295 * 100) + '%)';
+let vege_color = (vegeness) => {
+  return 'hsla(131, 70%, 31%, ' + Math.floor(scale_over_range(vegeness / 255, 0, 70)) + '%)';
 };
 
 const draw = (
