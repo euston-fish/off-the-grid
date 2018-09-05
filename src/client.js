@@ -46,6 +46,8 @@ export default (function (DEBUG) {
     let active_instruction = null;
 
     let canvas = document.getElementById('c');
+    let titles = document.getElementById('titles_container');
+    document.body.addEventListener('click', () => titles.remove());
     let ctx = canvas.getContext('2d');
     let resize = () => {
       canvas.width = window.innerWidth;
