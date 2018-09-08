@@ -125,7 +125,6 @@ struct Game {
   water: Layer<f32>,
   vegetation: Layer<f32>,
   vegetation_type: Layer<VegeType>,
-  vegetation_average: f32,
 }
 
 impl Game {
@@ -163,9 +162,6 @@ impl Game {
         self.consider_pair(a, c);
        }
     }
-    let previous_vege_average: f32 = self.vegetation_average;
-    self.vegetation_average = 0.0;
-    let mut grow_count = 0;
     for c in 0..SIZE {
       for r in 0..SIZE {
         let c = Coordinate { c, r };
@@ -174,8 +170,9 @@ impl Game {
         let height = self.terrain[c];
         let water_level = self.water[c];
         let multiplier = if vege_type.age < 200 { 1.0 } else { -1.0 };
+        let must_grow = vege >= 255.0;
 
-        if (vege_type.preferred_height - height).abs() < 30.0 {
+        if (vege_type.preferred_height - height).abs() < 30.0 || must_grow {
           if randf32() < 0.4 {
             let mut neighbour = c.follow(Direction::random());
             let mut max_vege = self.vegetation[neighbour];
@@ -195,8 +192,17 @@ impl Game {
         } else {
           vege -= 5.0;
         }
+        if must_grow {
+          vege_type.age += 5;
+        }
         vege_type.age += 1;
         self.vegetation_type[c] = vege_type;
+
+        let mut total_water: f32 = 0.0;
+        for w in c.neighbours_iter() { total_water += self.water[w]; }
+        if (vege_type.preferred_moisture - total_water).abs() < 40.0 {
+          vege += 10.0;
+        }
 
         if water_level > DRY_DEPTH {
           vege -= 20.0;
@@ -205,11 +211,10 @@ impl Game {
         if vege_type.age >= 200 {
           vege -= 10.0;
         }
+
         self.vegetation[c] = vege.max(0.0).min(255.0);
-        self.vegetation_average += self.vegetation[c];
       }
     }
-    self.vegetation_average /= (SIZE * SIZE) as f32;
   }
 
   fn init(&mut self) {
@@ -232,7 +237,7 @@ impl Game {
     }
     for mut vege in self.vegetation_type.values.iter_mut() {
       vege.preferred_moisture = unsafe { random() as f32 } * 255.0;
-      vege.preferred_height = unsafe { random() as f32 } * 255.0;
+      vege.preferred_height = unsafe { random() as f32 } * 40.0;
     }
   }
 
@@ -267,7 +272,6 @@ static mut GAME: Game =
       age: 0,
       preferred_height: 0.0,
       preferred_moisture: 0.0 }; (SIZE * SIZE) as usize] },
-    vegetation_average: 0.0,
   };
 static mut NOISE: Noise =
   Noise {
