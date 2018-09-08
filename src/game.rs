@@ -20,28 +20,35 @@ struct Coordinate {
 
 #[derive(Clone,Copy)]
 enum Direction {
-  North, East, South, West
+  N, NE, E, SE, S, SW, W, NW,
 }
 
 impl Direction {
   fn iter() -> Iter<'static, Direction> {
-    // TODO Maybe make eight directions?
-    static DIRECTIONS: [Direction; 4] = [
-      Direction::North,
-      Direction::East,
-      Direction::South,
-      Direction::West
+    static DIRECTIONS: [Direction; 8] = [
+      Direction::N,
+      Direction::NE,
+      Direction::E,
+      Direction::SE,
+      Direction::S,
+      Direction::SW,
+      Direction::W,
+      Direction::NW,
     ];
     DIRECTIONS.into_iter()
   }
 
   fn random() -> Direction {
-    match (randf32() * 4.0) as i8 {
-      0 => Direction::North,
-      1 => Direction::East,
-      2 => Direction::South,
-      3 => Direction::West,
-      _ => Direction::West,
+    match (randf32() * 8.0) as i8 {
+      0 => Direction::N,
+      1 => Direction::NE,
+      2 => Direction::E,
+      3 => Direction::SE,
+      4 => Direction::S,
+      5 => Direction::SW,
+      6 => Direction::W,
+      7 => Direction::NW,
+      _ => Direction::N,
     }
   }
 }
@@ -77,10 +84,14 @@ impl Iterator for IterCoordinateNeighbours {
 impl Coordinate {
   fn follow(&self, direction: Direction) -> Coordinate {
     let (dc, dr) = match direction {
-      Direction::North => (0, (0 as u32).wrapping_sub(1)),
-      Direction::East => (1, 0),
-      Direction::South => (0, 1),
-      Direction::West => ((0 as u32).wrapping_sub(1), 0),
+      Direction::N => (0, (0 as u32).wrapping_sub(1)),
+      Direction::NE => (1, (0 as u32).wrapping_sub(1)),
+      Direction::E => (1, 0),
+      Direction::SE => (1, 1),
+      Direction::S => (0, 1),
+      Direction::SW => ((0 as u32).wrapping_sub(1), 1),
+      Direction::W => ((0 as u32).wrapping_sub(1), 0),
+      Direction::NW => ((0 as u32).wrapping_sub(1), (0 as u32).wrapping_sub(1)),
     };
     Coordinate { c: self.c + dc, r: self.r + dr }
   }
@@ -118,6 +129,14 @@ struct VegeType {
   age: i32,
   preferred_height: f32,
   preferred_moisture: f32,
+}
+
+impl VegeType {
+  fn new_from(&mut self, other: VegeType) {
+    self.age = 0;
+    self.preferred_height = other.preferred_height + (randf32() * 20.0) - 10.0;
+    self.preferred_moisture = other.preferred_moisture + (randf32() * 20.0) - 10.0;
+  }
 }
 
 struct Game {
@@ -183,11 +202,9 @@ impl Game {
               }
             }
             if self.vegetation[neighbour] <= 3.0 {
-              self.vegetation_type[neighbour] = vege_type;
-              self.vegetation_type[neighbour].age = 0;
+              self.vegetation_type[neighbour].new_from(vege_type);
             }
             self.vegetation[neighbour] += multiplier * 10.0;
-            grow_count += 1;
           }
         } else {
           vege -= 5.0;
